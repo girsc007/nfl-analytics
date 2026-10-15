@@ -45,3 +45,7 @@ def add_subtitle(ax, text: str) -> None:
 
 def add_footnote(fig, text: str) -> None:
     fig.text(0.01, 0.01, text, fontsize=8, color=TEXT_MUTED, ha="left", va="bottom")
+
+# Two-series categorical pair (validated for color-vision deficiency).
+SERIES_1 = "#2a78d6"  # blue
+SERIES_2 = "#eb6834"  # orange

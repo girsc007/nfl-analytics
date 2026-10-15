@@ -13,9 +13,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from nfl_analytics import (load_pbp, offensive_plays, plot_epa_ranking,  # noqa: E402
-                           plot_epa_vs_cpoe, plot_pass_vs_rush, plot_team_efficiency,
-                           qb_stats, team_epa, team_pass_rush_epa)
+from nfl_analytics import (load_participation, load_pbp, offensive_plays,  # noqa: E402
+                           plot_epa_ranking, plot_epa_vs_cpoe, plot_pass_vs_rush,
+                           plot_rb_tendencies, plot_team_efficiency, qb_stats,
+                           rb_pass_tendencies, team_epa, team_pass_rush_epa)
 
 
 def main() -> None:
@@ -55,6 +56,17 @@ def main() -> None:
         title=f"{args.season} offense: passing vs. rushing efficiency",
         subtitle=f"EPA per play by play type  ·  {through}  ·  {scope}",
         save_path=figures / f"team_pass_vs_rush_{args.season}.png",
+    )
+
+    rb_min = max(40, 8 * weeks)
+    rbs = rb_pass_tendencies(plays, load_participation(args.season), min_plays=rb_min)
+    rbs.round(3).to_csv(output / f"rb_pass_tendencies_{args.season}.csv")
+    plot_rb_tendencies(
+        rbs,
+        title=f"{args.season}: does the running back tip off a pass?",
+        subtitle=f"Pass rate over expected with each team's top two backs on the field alone  ·  "
+                 f"{through}  ·  min. {rb_min} plays each",
+        save_path=figures / f"rb_pass_tendencies_{args.season}.png",
     )
 
     min_db = args.min_dropbacks or 15 * weeks

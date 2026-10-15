@@ -29,6 +29,27 @@ Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axe
 - **Good offenses are usually good at both** (r = 0.49 between pass and rush EPA).
   **BUF, LA and CHI** stand out as above average at both.
 
+## Does the running back tip off a pass? (2025 regular season)
+
+![2025 RB pass tendencies](figures/rb_pass_tendencies_2025.png)
+
+For the 25 teams that split snaps between two backs, this compares how often the offense passed
+with **only its lead back (RB1)** on the field vs. **only its second back (RB2)**. It uses
+**pass rate over expected**, which adjusts for down, distance, field position, score and time
+using nflverse's `xpass`. Player-level on-field data comes from nflverse participation data.
+
+- **Situation explains most of the raw gap:** on average, teams passed 9.0 points more often with RB2,
+  but 5.8 points of that is because RB2 plays more obvious passing downs. The leftover **3.3 points** is the tell.
+- **7 of 25 teams had a significant tell** (about 1 would be expected by chance).
+  **BAL** was the most predictable: 80% pass with Justice Hill alone vs. 39% with Derrick Henry,
+  **+17 points** after adjusting for situation. **CLE** (Ford vs. Judkins) was close behind at +16.
+- **DEN flipped the pattern:** it passed 13 points *less* than expected with its second back, J.K. Dobbins, on the field.
+- **SEA, MIN, TEN and TB** were hard to read. Their two backs had nearly identical tendencies.
+- Two backs on the field together is rare: **3% of plays**.
+
+Full table: [`output/rb_pass_tendencies_2025.csv`](output/rb_pass_tendencies_2025.csv).
+Walkthrough: [`notebooks/03_rb_pass_tendencies.ipynb`](notebooks/03_rb_pass_tendencies.ipynb).
+
 ## Quarterbacks (2025 regular season)
 
 ![2025 QB accuracy vs. production](figures/qb_epa_vs_cpoe_2025.png)
@@ -67,11 +88,13 @@ src/nfl_analytics/
   data.py             load and filter play-by-play
   team_efficiency.py  team EPA, pass vs. rush split, and charts
   qb_stats.py         QB stats table and charts
+  rb_tendencies.py    pass tendencies by running back on the field
   style.py            shared chart styling
 scripts/make_charts.py  regenerate every chart and table
 notebooks/
   01_team_efficiency.ipynb
   02_qb_stats.ipynb
+  03_rb_pass_tendencies.ipynb
 figures/   saved charts
 output/    CSV tables
 ```
@@ -94,6 +117,7 @@ jupyter notebook notebooks/
 ## Ideas for next analyses
 
 - Pass vs. rush EPA by down and distance
+- Do defenses exploit RB tells? EPA on RB2's runs vs. his passes
 - Year-over-year stability of EPA vs. CPOE for QBs
 - QB performance under pressure, on 3rd down, and in the red zone
 - 4th-down decision-making vs. win-probability recommendations
