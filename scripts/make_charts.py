@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from nfl_analytics import (load_pbp, offensive_plays, plot_epa_ranking,  # noqa: E402
-                           plot_epa_vs_cpoe, plot_team_efficiency, qb_stats, team_epa)
+                           plot_epa_vs_cpoe, plot_pass_vs_rush, plot_team_efficiency,
+                           qb_stats, team_epa, team_pass_rush_epa)
 
 
 def main() -> None:
@@ -45,6 +46,15 @@ def main() -> None:
         title=f"{args.season} NFL team efficiency",
         subtitle=f"EPA per play on offense vs. defense  ·  {through}  ·  {scope}",
         save_path=figures / f"team_efficiency_{args.season}.png",
+    )
+
+    split = team_pass_rush_epa(plays)
+    split.round(3).to_csv(output / f"team_pass_rush_epa_{args.season}.csv")
+    plot_pass_vs_rush(
+        split,
+        title=f"{args.season} offense: passing vs. rushing efficiency",
+        subtitle=f"EPA per play by play type  ·  {through}  ·  {scope}",
+        save_path=figures / f"team_pass_vs_rush_{args.season}.png",
     )
 
     min_db = args.min_dropbacks or 15 * weeks

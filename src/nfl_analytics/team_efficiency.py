@@ -71,3 +71,73 @@ def plot_team_efficiency(teams: pd.DataFrame, title: str, subtitle: str,
     if save_path:
         fig.savefig(save_path, dpi=150)
     return fig, ax
+
+
+def team_pass_rush_epa(plays: pd.DataFrame) -> pd.DataFrame:
+    """Offensive EPA/play split into dropbacks and designed runs.
+
+    nflverse counts QB scrambles as pass plays (`pass == 1`), so "rush" here
+    means designed runs only.
+    """
+    grouped = plays.groupby(["posteam", "pass"])["epa"]
+    split = pd.DataFrame({
+        "pass_epa": grouped.mean().xs(1, level="pass"),
+        "rush_epa": grouped.mean().xs(0, level="pass"),
+        "pass_plays": grouped.size().xs(1, level="pass"),
+        "rush_plays": grouped.size().xs(0, level="pass"),
+    })
+    split["pass_rate"] = split["pass_plays"] / (split["pass_plays"] + split["rush_plays"])
+    split["pass_minus_rush"] = split["pass_epa"] - split["rush_epa"]
+    split.index.name = "team"
+    return split.sort_values("pass_epa", ascending=False)
+
+
+def plot_pass_vs_rush(split: pd.DataFrame, title: str, subtitle: str,
+                      save_path: str | None = None):
+    """Scatter of pass EPA/play (x) vs. rush EPA/play (y) on a shared scale.
+
+    Both axes use the same units per inch, so the wider spread of passing
+    efficiency is visible. The diagonal marks pass EPA = rush EPA.
+    """
+    apply_style()
+    fig, ax = plt.subplots(figsize=(13, 7.5))
+
+    ax.scatter(split["pass_epa"], split["rush_epa"], s=70, color=ACCENT,
+               edgecolor=SURFACE, linewidth=2, zorder=3)
+    ax.axvline(split["pass_epa"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
+    ax.axhline(split["rush_epa"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
+
+    ax.set_aspect("equal", adjustable="datalim")
+    ax.margins(0.08)
+    low = min(split["pass_epa"].min(), split["rush_epa"].min()) - 0.1
+    high = max(split["pass_epa"].max(), split["rush_epa"].max()) + 0.1
+    xlim, ylim = ax.get_xlim(), ax.get_ylim()
+    ax.plot([low, high], [low, high], color=TEXT_SECONDARY, linewidth=1, zorder=1)
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    # Label the diagonal near its upper end, inside the visible area.
+    label_at = min(xlim[1], ylim[1]) - 0.02
+    ax.text(label_at, label_at, "pass = rush  ", rotation=45, rotation_mode="anchor",
+            ha="right", va="bottom", fontsize=9, color=TEXT_SECONDARY)
+
+    labels = [ax.text(x, y, team, fontsize=9, fontweight="bold", color=TEXT_PRIMARY)
+              for team, x, y in zip(split.index, split["pass_epa"], split["rush_epa"])]
+    adjust_text(labels, x=split["pass_epa"].values, y=split["rush_epa"].values, ax=ax,
+                expand=(1.3, 1.5), arrowprops=dict(arrowstyle="-", color=TEXT_MUTED, lw=0.5))
+
+    corner = dict(transform=ax.transAxes, fontsize=10, color=TEXT_SECONDARY,
+                  fontstyle="italic")
+    ax.text(0.98, 0.98, "Good passing, good rushing", ha="right", va="top", **corner)
+    ax.text(0.98, 0.02, "Good passing, poor rushing", ha="right", va="bottom", **corner)
+
+    ax.set_xlabel("Pass EPA/play (dropbacks, incl. scrambles and sacks)  →  better")
+    ax.set_ylabel("Rush EPA/play (designed runs)  →  better")
+    ax.set_title(title, pad=28)
+    add_subtitle(ax, subtitle)
+    add_footnote(fig, "Data: nflverse via nflreadpy  ·  Dashed lines = league average  ·  "
+                      "Both axes on the same scale")
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+
+    if save_path:
+        fig.savefig(save_path, dpi=150)
+    return fig, ax

@@ -14,6 +14,21 @@ inverted so up is good). Teams in the top-right are good on both sides of the ba
 - **SEA** and **PHI** had the best defenses with average offenses.
 - **DAL** had a top-five offense undone by the league's worst defense.
 
+## Passing vs. rushing (2025 regular season)
+
+![2025 pass vs. rush EPA](figures/team_pass_vs_rush_2025.png)
+
+Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axes on the same scale.
+
+- **Passing is more efficient:** the league averaged **+0.062** EPA per dropback vs. **−0.055** per designed run.
+  Only **CIN, MIN, NYJ and CLE** ran more efficiently than they passed.
+- **Passing separates teams:** pass EPA varies almost twice as much between teams as rush EPA
+  (std. dev. 0.14 vs. 0.07). **GB and NE** passed far better than anyone else.
+- **Run-heavy ≠ run-efficient:** pass rate had essentially no correlation with either pass or rush efficiency (r ≈ 0).
+  CIN ran better than it passed yet had the 3rd-highest pass rate.
+- **Good offenses are usually good at both** (r = 0.49 between pass and rush EPA).
+  **BUF, LA and CHI** stand out as above average at both.
+
 ## Quarterbacks (2025 regular season)
 
 ![2025 QB accuracy vs. production](figures/qb_epa_vs_cpoe_2025.png)
@@ -50,7 +65,7 @@ Ranked bar chart: [`figures/qb_epa_ranking_2025.png`](figures/qb_epa_ranking_202
 ```
 src/nfl_analytics/
   data.py             load and filter play-by-play
-  team_efficiency.py  team EPA table and scatter chart
+  team_efficiency.py  team EPA, pass vs. rush split, and charts
   qb_stats.py         QB stats table and charts
   style.py            shared chart styling
 scripts/make_charts.py  regenerate every chart and table
@@ -78,7 +93,7 @@ jupyter notebook notebooks/
 
 ## Ideas for next analyses
 
-- Pass vs. rush EPA split by team
+- Pass vs. rush EPA by down and distance
 - Year-over-year stability of EPA vs. CPOE for QBs
 - QB performance under pressure, on 3rd down, and in the red zone
 - 4th-down decision-making vs. win-probability recommendations
