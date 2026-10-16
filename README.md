@@ -130,6 +130,24 @@ Walkthrough: [`notebooks/03_rb_pass_tendencies.ipynb`](notebooks/03_rb_pass_tend
 Minimum 270 dropbacks. Full table: [`output/qb_stats_2025.csv`](output/qb_stats_2025.csv).
 Ranked bar chart: [`figures/qb_epa_ranking_2025.png`](figures/qb_epa_ranking_2025.png).
 
+### Clean pocket vs. under pressure
+
+![2025 QB pressure splits](figures/qb_pressure_2025.png)
+
+EPA per dropback from a clean pocket (blue) vs. under pressure (orange), using nflverse's pressure flag.
+Sacks count as pressured dropbacks. Rows are sorted by EPA under pressure, with each QB's pressure rate on the right.
+
+- **Pressure is devastating for everyone:** across the league, dropbacks averaged **+0.27 EPA** from a clean
+  pocket and **−0.44** under pressure. Even the best QBs under pressure (D. Jones, Maye, Prescott, Mahomes)
+  were still negative there, from −0.07 to −0.21.
+- **Biggest drop-offs:** G. Smith (−1.32), Love (−1.08) and Lamar Jackson (−1.05). Love and Jackson were
+  among the best from a clean pocket.
+- **Pressure rate ranged** from 21% (Rodgers) and 22% (Stafford) to 36% (Herbert).
+- **Performance under pressure doesn't carry over.** For the 19 QBs who qualified in both 2024 and 2025,
+  clean-pocket EPA correlated year to year (r = 0.34), but EPA under pressure didn't at all (r = −0.06).
+  It's largely noise, so judge QBs mostly on what they do from a clean pocket, and on how often they avoid
+  pressure in the first place (r = 0.25).
+
 ## Methodology
 
 - **Data:** nflverse play-by-play, loaded with [`nflreadpy`](https://github.com/nflverse/nflreadpy).

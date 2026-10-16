@@ -15,8 +15,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from nfl_analytics import (load_participation, load_pbp, offensive_plays,  # noqa: E402
                            pass_tendency_by_down, plot_epa_ranking, plot_epa_vs_cpoe,
-                           plot_pass_tendency_by_down, plot_pass_vs_rush,
-                           plot_rb_tendencies, plot_team_efficiency, qb_stats,
+                           plot_pass_tendency_by_down, plot_pass_vs_rush, plot_pressure_dumbbell,
+                           plot_rb_tendencies, plot_team_efficiency, qb_pressure_splits, qb_stats,
                            rb_pass_tendencies, team_epa, team_pass_rush_epa)
 
 
@@ -94,6 +94,16 @@ def main() -> None:
         title=f"{args.season} QB EPA per dropback",
         subtitle=qb_subtitle,
         save_path=figures / f"qb_epa_ranking_{args.season}.png",
+    )
+
+    pressure = qb_pressure_splits(plays, load_participation(args.season, ["was_pressure"]),
+                                  min_dropbacks=min_db)
+    pressure.round(3).to_csv(output / f"qb_pressure_{args.season}.csv")
+    plot_pressure_dumbbell(
+        pressure,
+        title=f"{args.season} QBs: clean pocket vs. under pressure",
+        subtitle=qb_subtitle,
+        save_path=figures / f"qb_pressure_{args.season}.png",
     )
 
     print("\nTop 5 teams by net EPA/play:")

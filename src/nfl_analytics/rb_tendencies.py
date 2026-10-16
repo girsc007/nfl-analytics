@@ -18,10 +18,11 @@ from .style import (SERIES_1, SERIES_2, SURFACE, TEXT_MUTED, TEXT_PRIMARY,
                     TEXT_SECONDARY, add_footnote, add_subtitle, apply_style)
 
 
-def load_participation(seasons: int | list[int]) -> pd.DataFrame:
-    """Per-play lists of the offensive players on the field."""
-    cols = ["nflverse_game_id", "play_id", "offense_players", "offense_positions",
-            "offense_names"]
+def load_participation(seasons: int | list[int],
+                       columns: list[str] | None = None) -> pd.DataFrame:
+    """Per-play participation data. Defaults to the offensive players on the field."""
+    cols = ["nflverse_game_id", "play_id"] + (columns or [
+        "offense_players", "offense_positions", "offense_names"])
     return nfl.load_participation(seasons).select(cols).to_pandas()
 
 
