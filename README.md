@@ -130,6 +130,7 @@ src/nfl_analytics/
   qb_stats.py         QB stats table and charts
   rb_tendencies.py    pass tendencies by running back on the field
   matchups.py         pass/rush unit ratings and matchup edges
+  logos.py            team logos as chart markers (downloaded once, cached)
   style.py            shared chart styling
 scripts/make_charts.py  regenerate every season chart and table
 scripts/matchups.py     weekly matchup mismatches
@@ -165,4 +166,5 @@ jupyter notebook notebooks/
 - 4th-down decision-making vs. win-probability recommendations
 - Does net EPA/play predict win totals better than point differential?
 
-Data courtesy of the nflverse project (CC-BY 4.0).
+Data courtesy of the nflverse project (CC-BY 4.0). Team logos are downloaded from ESPN's CDN when charts
+are generated and cached in `.cache/logos/` (not committed). They're trademarks of their respective teams.

@@ -1,9 +1,11 @@
 """Quarterback efficiency: EPA per dropback, CPOE, success rate and more."""
 
 import matplotlib.pyplot as plt
+from matplotlib import patheffects
 import pandas as pd
 from adjustText import adjust_text
 
+from .logos import plot_logos
 from .style import (ACCENT, SURFACE, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
                     add_footnote, add_subtitle, apply_style)
 
@@ -46,15 +48,30 @@ def plot_epa_vs_cpoe(qbs: pd.DataFrame, title: str, subtitle: str,
     apply_style()
     fig, ax = plt.subplots(figsize=(11, 8.5))
 
-    ax.scatter(qbs["cpoe"], qbs["epa_per_db"], s=70, color=ACCENT,
+    boxes = plot_logos(ax, qbs["cpoe"], qbs["epa_per_db"], qbs["team"], size=0.34)
+    missing = [box is None for box in boxes]
+    ax.scatter(qbs["cpoe"][missing], qbs["epa_per_db"][missing], s=70, color=ACCENT,
                edgecolor=SURFACE, linewidth=2, zorder=3)
     ax.axvline(qbs["cpoe"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
     ax.axhline(qbs["epa_per_db"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
 
-    labels = [ax.text(x, y, name, fontsize=9, color=TEXT_PRIMARY)
-              for name, x, y in zip(qbs["name"], qbs["cpoe"], qbs["epa_per_db"])]
+    # Start each name just below its logo, then let adjust_text resolve the
+    # remaining collisions, treating the logos as obstacles.
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    to_data = ax.transData.inverted()
+    below = 0.34 / 2 * fig.dpi + 2  # half a logo plus a small gap, in pixels
+    labels = []
+    for name, x, y in zip(qbs["name"], qbs["cpoe"], qbs["epa_per_db"]):
+        px, py = ax.transData.transform((x, y))
+        lx, ly = to_data.transform((px, py - below))
+        labels.append(ax.text(lx, ly, name, fontsize=8.5, color=TEXT_PRIMARY,
+                              ha="center", va="top", zorder=5,
+                              path_effects=[patheffects.withStroke(linewidth=2.5,
+                                                                   foreground=SURFACE)]))
+    fig.canvas.draw()
+    obstacles = [box.get_window_extent() for box in boxes if box is not None]
     adjust_text(labels, x=qbs["cpoe"].values, y=qbs["epa_per_db"].values, ax=ax,
-                expand=(1.3, 1.5), arrowprops=dict(arrowstyle="-", color=TEXT_MUTED, lw=0.5))
+                objects=obstacles, expand=(1.1, 1.2), only_move={"text": "xy"}, arrowprops=dict(arrowstyle="-", color=TEXT_MUTED, lw=0.5))
 
     corner = dict(transform=ax.transAxes, fontsize=10, color=TEXT_SECONDARY,
                   fontstyle="italic")

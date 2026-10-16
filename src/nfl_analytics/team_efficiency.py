@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from adjustText import adjust_text
 
-from .style import (ACCENT, SURFACE, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
-                    add_footnote, add_subtitle, apply_style)
+from .logos import plot_team_points
+from .style import (TEXT_MUTED, TEXT_SECONDARY, add_footnote, add_subtitle,
+                    apply_style)
 
 
 def team_epa(plays: pd.DataFrame) -> pd.DataFrame:
@@ -40,19 +41,16 @@ def plot_team_efficiency(teams: pd.DataFrame, title: str, subtitle: str,
     apply_style()
     fig, ax = plt.subplots(figsize=(11, 8.5))
 
-    ax.scatter(teams["off_epa"], teams["def_epa"], s=70, color=ACCENT,
-               edgecolor=SURFACE, linewidth=2, zorder=3)
-
     off_avg, def_avg = teams["off_epa"].mean(), teams["def_epa"].mean()
     ax.axvline(off_avg, color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
     ax.axhline(def_avg, color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
     ax.margins(x=0.06, y=0.1)
     ax.invert_yaxis()
 
-    labels = [ax.text(x, y, team, fontsize=9, fontweight="bold", color=TEXT_PRIMARY)
-              for team, x, y in zip(teams.index, teams["off_epa"], teams["def_epa"])]
-    adjust_text(labels, x=teams["off_epa"].values, y=teams["def_epa"].values, ax=ax,
-                expand=(1.3, 1.5), arrowprops=dict(arrowstyle="-", color=TEXT_MUTED, lw=0.5))
+    labels = plot_team_points(ax, teams["off_epa"], teams["def_epa"], teams.index)
+    if labels:
+        adjust_text(labels, x=teams["off_epa"].values, y=teams["def_epa"].values, ax=ax,
+                    expand=(1.3, 1.5))
 
     corner = dict(transform=ax.transAxes, fontsize=10, color=TEXT_SECONDARY,
                   fontstyle="italic")
@@ -102,10 +100,10 @@ def plot_pass_vs_rush(split: pd.DataFrame, title: str, subtitle: str,
     apply_style()
     fig, ax = plt.subplots(figsize=(13, 7.5))
 
-    ax.scatter(split["pass_epa"], split["rush_epa"], s=70, color=ACCENT,
-               edgecolor=SURFACE, linewidth=2, zorder=3)
     ax.axvline(split["pass_epa"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
     ax.axhline(split["rush_epa"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
+    # Draw the logos first so the axis limits below are fit to the data.
+    labels = plot_team_points(ax, split["pass_epa"], split["rush_epa"], split.index)
 
     ax.set_aspect("equal", adjustable="datalim")
     ax.margins(0.08)
@@ -115,15 +113,16 @@ def plot_pass_vs_rush(split: pd.DataFrame, title: str, subtitle: str,
     ax.plot([low, high], [low, high], color=TEXT_SECONDARY, linewidth=1, zorder=1)
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
-    # Label the diagonal near its upper end, inside the visible area.
-    label_at = min(xlim[1], ylim[1]) - 0.02
-    ax.text(label_at, label_at, "pass = rush  ", rotation=45, rotation_mode="anchor",
-            ha="right", va="bottom", fontsize=9, color=TEXT_SECONDARY)
+    # Label the diagonal a third of the way up its visible stretch, where it
+    # passes through open space between the two clusters of teams.
+    start, end = max(xlim[0], ylim[0]), min(xlim[1], ylim[1])
+    label_at = start + (end - start) * 0.38
+    ax.text(label_at, label_at, "  pass = rush", rotation=45, rotation_mode="anchor",
+            ha="left", va="bottom", fontsize=9, color=TEXT_SECONDARY)
 
-    labels = [ax.text(x, y, team, fontsize=9, fontweight="bold", color=TEXT_PRIMARY)
-              for team, x, y in zip(split.index, split["pass_epa"], split["rush_epa"])]
-    adjust_text(labels, x=split["pass_epa"].values, y=split["rush_epa"].values, ax=ax,
-                expand=(1.3, 1.5), arrowprops=dict(arrowstyle="-", color=TEXT_MUTED, lw=0.5))
+    if labels:
+        adjust_text(labels, x=split["pass_epa"].values, y=split["rush_epa"].values, ax=ax,
+                    expand=(1.3, 1.5))
 
     corner = dict(transform=ax.transAxes, fontsize=10, color=TEXT_SECONDARY,
                   fontstyle="italic")
