@@ -36,22 +36,38 @@ Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axe
 `scripts/matchups.py` rates every team's **pass offense, rush offense, pass defense and rush defense**
 (EPA/play, using only games before the target week), then scores each offense-vs-defense matchup:
 
-> **edge** = (offense EPA/play − league avg) + (defense EPA/play allowed − league avg)
+> **edge** = (offense rating − league avg) + (defense rating − league avg)
 
 A positive edge favors the offense; a negative edge favors the defense. `edge_sd` puts it in standard
 deviations, so pass and rush mismatches compare fairly.
 
+**Opponent adjustment.** Ratings come from a ridge regression fit on every play, separately for passing
+and rushing: *EPA = league average + offense rating + defense rating*. Solving for all teams at once
+credits each unit only for what it did beyond what its opponents usually allow or produce. The ridge
+penalty (`--shrinkage`, default 200) works like adding 200 league-average plays to each team, which
+pulls small early-season samples toward average. The script also prints the units whose ratings moved
+most because of their schedule, and saves every rating, raw and adjusted, to `output/unit_ratings_*.csv`.
+
 ```bash
 python scripts/matchups.py                          # next week with unplayed games
 python scripts/matchups.py --season 2026 --week 8
+python scripts/matchups.py --no-adjust              # raw per-play averages
 python scripts/matchups.py --prior-weight 0.25      # blend in last season's plays
 ```
 
-**Does it work?** In a 2025 backtest, matchup edges correlated with what actually happened in the game:
-passing r = 0.20 in weeks 3–8 and 0.37 in weeks 9–18, rushing r ≈ 0.15. Early-season edges are
-exaggerated. Before week 9, games realized only about a third of the passing edge, and blending in
-last season didn't improve accuracy. Treat early-season edges as directional, and trust passing
-mismatches more than rushing ones.
+**Does it work?** Backtested on 2025, rating teams on prior weeks only and comparing each edge to
+the game's actual EPA/play:
+
+| Ratings | Pass r (wk 3–8) | Pass r (wk 9–18) | Rush r (wk 9–18) | Early pass error |
+|---|---:|---:|---:|---:|
+| Raw averages | 0.205 | 0.368 | 0.165 | 0.148 |
+| Shrinkage only | 0.186 | 0.376 | 0.161 | 0.116 |
+| **Opponent-adjusted + shrinkage (default)** | 0.193 | 0.373 | 0.174 | **0.115** |
+
+Most of the gain comes from **shrinkage**. Raw early-season edges overstated real results by about 3×,
+and shrinking them cut prediction error by about 22%. Opponent adjustment adds a small improvement on
+top, mainly for rushing, though one season is not enough to be confident about a gain that size.
+Passing mismatches remain far more predictive than rushing ones.
 
 ## Does the running back tip off a pass? (2025 regular season)
 
