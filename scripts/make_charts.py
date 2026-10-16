@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from nfl_analytics import (load_participation, load_pbp, offensive_plays,  # noqa: E402
-                           plot_epa_ranking, plot_epa_vs_cpoe, plot_pass_vs_rush,
+                           pass_rush_by_down, plot_epa_ranking, plot_epa_vs_cpoe,
+                           plot_pass_rush_by_down, plot_pass_vs_rush,
                            plot_rb_tendencies, plot_team_efficiency, qb_stats,
                            rb_pass_tendencies, team_epa, team_pass_rush_epa)
 
@@ -56,6 +57,15 @@ def main() -> None:
         title=f"{args.season} offense: passing vs. rushing efficiency",
         subtitle=f"EPA per play by play type  ·  {through}  ·  {scope}",
         save_path=figures / f"team_pass_vs_rush_{args.season}.png",
+    )
+
+    by_down = pass_rush_by_down(plays)
+    by_down.round(3).to_csv(output / f"pass_rush_by_down_{args.season}.csv", index=False)
+    plot_pass_rush_by_down(
+        by_down,
+        title=f"{args.season}: is passing or running more efficient, by down?",
+        subtitle=f"Pass EPA/play minus rush EPA/play  ·  {through}  ·  {scope}",
+        save_path=figures / f"pass_rush_by_down_{args.season}.png",
     )
 
     rb_min = max(40, 8 * weeks)

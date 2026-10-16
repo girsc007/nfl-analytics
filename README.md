@@ -29,6 +29,26 @@ Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axe
 - **Good offenses are usually good at both** (r = 0.49 between pass and rush EPA).
   **BUF, LA and CHI** stand out as above average at both.
 
+## Passing vs. rushing by down (2025 regular season)
+
+![2025 pass vs. rush by down](figures/pass_rush_by_down_2025.png)
+
+Each cell is a team's **pass EPA/play minus rush EPA/play** in that situation (blue = passing was more
+efficient, orange = running was), followed by its pass rate. The 3rd-down column uses **3rd & 1–3 only**:
+teams run on 3rd & short and pass on 3rd & long, so all 3rd downs would mostly compare distances.
+
+- **Passing wins on early downs almost everywhere:** 30 of 32 teams were more efficient passing on 1st down
+  (league gap +0.18 EPA/play) and 29 of 32 on 2nd down (+0.14).
+- **Yet teams still run half the time on 1st down** (median pass rate 50%). A team's own pass-rush gap
+  had almost no relationship with how often it passed (r ≈ 0.03 on 1st down).
+- **3rd & short is a toss-up:** the league average slightly favors running (−0.04, not significant).
+  Most teams have only 20–30 plays of each type there, so team cells in that column are noisy.
+- **CIN and CLE** were the only teams where running matched or beat passing on 1st down.
+
+EPA doesn't capture everything running offers, such as setting up play-action, so the gap overstates
+how much more teams *should* pass. Still, it's consistent with the long-standing analytics finding that
+early-down passing is undervalued.
+
 ## Weekly matchup mismatches
 
 ![2026 week 6 matchups](figures/matchups_2026_wk06.png)
@@ -159,7 +179,7 @@ jupyter notebook notebooks/
 
 ## Ideas for next analyses
 
-- Pass vs. rush EPA by down and distance
+- Pass vs. rush EPA by field position (does running pay off near the goal line?)
 - Do defenses exploit RB tells? EPA on RB2's runs vs. his passes
 - Year-over-year stability of EPA vs. CPOE for QBs
 - QB performance under pressure, on 3rd down, and in the red zone

@@ -49,3 +49,4 @@ def add_footnote(fig, text: str) -> None:
 # Two-series categorical pair (validated for color-vision deficiency).
 SERIES_1 = "#2a78d6"  # blue
 SERIES_2 = "#eb6834"  # orange
+DIVERGING_MID = "#f0efec"  # neutral gray midpoint for diverging scales

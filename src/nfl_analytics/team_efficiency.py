@@ -1,11 +1,14 @@
 """Team offensive vs. defensive EPA per play."""
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from adjustText import adjust_text
+from matplotlib.colors import LinearSegmentedColormap
 
-from .logos import plot_team_points
-from .style import (TEXT_MUTED, TEXT_SECONDARY, add_footnote, add_subtitle,
+from .logos import axis_logo, plot_team_points, team_logo
+from .style import (DIVERGING_MID, SERIES_1, SERIES_2, SURFACE, TEXT_MUTED,
+                    TEXT_PRIMARY, TEXT_SECONDARY, add_footnote, add_subtitle,
                     apply_style)
 
 
@@ -136,6 +139,138 @@ def plot_pass_vs_rush(split: pd.DataFrame, title: str, subtitle: str,
     add_footnote(fig, "Data: nflverse via nflreadpy  ·  Dashed lines = league average  ·  "
                       "Both axes on the same scale")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
+
+    if save_path:
+        fig.savefig(save_path, dpi=150)
+    return fig, ax
+
+
+DOWN_SITUATIONS = {
+    "1st down": lambda p: p["down"] == 1,
+    "2nd down": lambda p: p["down"] == 2,
+    # Teams run on 3rd & short and pass on 3rd & long, so all 3rd downs would
+    # mostly compare distances. 3rd & 1-3 is where both are common.
+    "3rd & 1–3": lambda p: (p["down"] == 3) & (p["ydstogo"] <= 3),
+}
+
+
+def pass_rush_by_down(plays: pd.DataFrame, min_plays: int = 20) -> pd.DataFrame:
+    """Pass vs. rush EPA/play for each team in each down situation.
+
+    One row per (team, situation), plus an "NFL" row per situation for the
+    league. `gap` = pass EPA/play - rush EPA/play; positive means passing was
+    more efficient. `significant` marks gaps whose 95% interval excludes zero,
+    and `low_sample` marks cells with fewer than `min_plays` of either type.
+    """
+    rows = []
+    for situation, mask in DOWN_SITUATIONS.items():
+        subset = plays[mask(plays)]
+        league = subset.assign(posteam="NFL")
+        for data in (subset, league):
+            stats = data.groupby(["posteam", "pass"])["epa"].agg(["mean", "std", "size"]).unstack("pass")
+            frame = pd.DataFrame({
+                "situation": situation,
+                "pass_epa": stats[("mean", 1)], "rush_epa": stats[("mean", 0)],
+                "pass_plays": stats[("size", 1)], "rush_plays": stats[("size", 0)],
+            })
+            se = np.sqrt(stats[("std", 1)] ** 2 / stats[("size", 1)]
+                         + stats[("std", 0)] ** 2 / stats[("size", 0)])
+            frame["gap"] = frame["pass_epa"] - frame["rush_epa"]
+            frame["significant"] = frame["gap"].abs() > 1.96 * se
+            rows.append(frame)
+    out = pd.concat(rows).rename_axis("team").reset_index()
+    out["pass_rate"] = out["pass_plays"] / (out["pass_plays"] + out["rush_plays"])
+    out["low_sample"] = out[["pass_plays", "rush_plays"]].min(axis=1) < min_plays
+    return out
+
+
+def _diverging_cmap() -> LinearSegmentedColormap:
+    """Orange (running better) <- gray -> blue (passing better)."""
+    return LinearSegmentedColormap.from_list(
+        "rush_pass", ["#a3401a", SERIES_2, "#f6c3a9", DIVERGING_MID,
+                      "#9ec5f4", SERIES_1, "#184f95"])
+
+
+def plot_pass_rush_by_down(by_down: pd.DataFrame, title: str, subtitle: str,
+                           limit: float = 0.5, save_path: str | None = None):
+    """Heatmap of pass - rush EPA/play: teams as rows, down situations as columns.
+
+    Rows are sorted by the 1st-down gap with the league average on top. Each
+    cell shows the gap (★ = 95% interval excludes zero) and the team's pass
+    rate in that situation; thin samples are faded and hatched.
+    """
+    apply_style()
+    situations = list(DOWN_SITUATIONS)
+    wide = by_down.pivot(index="team", columns="situation", values="gap")
+    order = ["NFL"] + list(wide.drop("NFL")[situations[0]].sort_values(ascending=False).index)
+    cells = by_down.set_index(["team", "situation"])
+
+    n_rows = len(order)
+    fig, ax = plt.subplots(figsize=(8.5, 0.34 * n_rows + 2.6))
+    cmap, norm = _diverging_cmap(), plt.Normalize(-limit, limit)
+
+    for row, team in enumerate(order):
+        y = n_rows - 1 - row
+        for col, situation in enumerate(situations):
+            cell = cells.loc[(team, situation)]
+            color = cmap(norm(np.clip(cell["gap"], -limit, limit)))
+            faded = bool(cell["low_sample"])
+            ax.add_patch(plt.Rectangle((col + 0.02, y + 0.04), 0.96, 0.92, facecolor=color,
+                                       alpha=0.45 if faded else 1.0,
+                                       hatch="///" if faded else None,
+                                       edgecolor=SURFACE if not faded else "#ffffff80",
+                                       linewidth=0 if not faded else 0.0))
+            r, g, b, _ = color
+            dark_cell = not faded and (0.299 * r + 0.587 * g + 0.114 * b) < 0.55
+            ink = "white" if dark_cell else TEXT_PRIMARY
+            star = " ★" if cell["significant"] else ""
+            ax.text(col + 0.36, y + 0.5, f"{cell['gap']:+.2f}{star}", ha="center", va="center",
+                    fontsize=8.5, fontweight="bold" if team == "NFL" else "normal", color=ink)
+            ax.text(col + 0.82, y + 0.5, f"{cell['pass_rate']:.0%}", ha="center", va="center",
+                    fontsize=7.5, color=ink if dark_cell else TEXT_SECONDARY)
+
+    # Rule under the league-average row.
+    ax.axhline(n_rows - 1, color=TEXT_SECONDARY, linewidth=1)
+
+    ax.set_xlim(0, len(situations))
+    ax.set_ylim(0, n_rows)
+    ax.set_xticks(np.arange(len(situations)) + 0.5, situations)
+    ax.xaxis.tick_top()
+    ax.tick_params(axis="x", length=0, labelsize=10, labelcolor=TEXT_PRIMARY, pad=4)
+    ax.grid(False)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+    logo_size = 0.24
+    yticks, ylabels = [], []
+    for row, team in enumerate(order):
+        y = n_rows - 1 - row + 0.5
+        yticks.append(y)
+        if team == "NFL" or team_logo(team) is None:
+            ylabels.append("NFL avg" if team == "NFL" else team)
+        else:
+            ylabels.append(team)
+            axis_logo(ax, team, y, offset=4 + logo_size * 36, size=logo_size)
+    ax.set_yticks(yticks, ylabels)
+    ax.tick_params(axis="y", length=0, labelsize=9, labelcolor=TEXT_PRIMARY,
+                   pad=logo_size * 72 + 8)
+
+    ax.set_title(title, pad=52)
+    add_subtitle(ax, subtitle, y=1.045)
+
+    # Color legend: a slim bar under the grid.
+    cax = fig.add_axes([0.3, 0.95 / fig.get_figheight(), 0.45, 0.012])
+    bar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax,
+                       orientation="horizontal", ticks=[-limit, 0, limit])
+    bar.ax.set_xticklabels([f"Running better\n{-limit:+.1f}", "Even\n0", f"Passing better\n{limit:+.1f}"],
+                           fontsize=8, color=TEXT_SECONDARY)
+    bar.outline.set_visible(False)
+    bar.ax.tick_params(length=0)
+
+    add_footnote(fig, "Cell: pass − rush EPA/play (★ = 95% interval excludes zero), then pass rate.  "
+                      "Faded = under 20 plays of either type.  Data: nflverse via nflreadpy")
+    fig.subplots_adjust(left=0.2, right=0.97, top=1 - 1.25 / fig.get_figheight(),
+                        bottom=1.55 / fig.get_figheight())
 
     if save_path:
         fig.savefig(save_path, dpi=150)
