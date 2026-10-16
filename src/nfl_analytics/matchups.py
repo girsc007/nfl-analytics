@@ -178,11 +178,13 @@ def plot_matchup_edges(edges: pd.DataFrame, title: str, subtitle: str, top: int 
                    pad=6 if any(labels) else 0)
     ax.grid(axis="y", visible=False)
 
-    limit = shown["edge"].abs().max() * 1.25
+    limit = shown["edge"].abs().max() * 1.35  # room for the value labels
     ax.set_xlim(-limit, limit)
     pad = limit * 0.015
-    for yi, value in zip(y, shown["edge"]):
-        ax.text(value + (pad if value >= 0 else -pad), yi, f"{value:+.2f}", va="center",
+    # Value plus play type at the bar end, with the type on the outer side.
+    for yi, value, kind in zip(y, shown["edge"], shown["kind"]):
+        text = f"{value:+.2f}  {kind}" if value >= 0 else f"{kind}  {value:+.2f}"
+        ax.text(value + (pad if value >= 0 else -pad), yi, text, va="center",
                 ha="left" if value >= 0 else "right", fontsize=8.5, color=TEXT_SECONDARY)
 
     # Direction labels point outward from the zero line.
