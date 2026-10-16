@@ -29,25 +29,24 @@ Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axe
 - **Good offenses are usually good at both** (r = 0.49 between pass and rush EPA).
   **BUF, LA and CHI** stand out as above average at both.
 
-## Passing vs. rushing by down (2025 regular season)
+## Pass/run tendencies by down (2025 regular season)
 
-![2025 pass vs. rush by down](figures/pass_rush_by_down_2025.png)
+![2025 pass tendency by down](figures/pass_tendency_by_down_2025.png)
 
-Each cell is a team's **pass EPA/play minus rush EPA/play** in that situation (blue = passing was more
-efficient, orange = running was), followed by its pass rate. The 3rd-down column uses **3rd & 1–3 only**:
-teams run on 3rd & short and pass on 3rd & long, so all 3rd downs would mostly compare distances.
+Each cell shows how often a team **passed** on that down, followed by its **pass rate over expected**
+(PROE): the actual pass rate minus nflverse's `xpass`, which accounts for distance, field position,
+score and time. The color shows PROE (blue = passes more than the situation calls for, orange = runs more),
+so it reflects play-calling tendency rather than game script.
 
-- **Passing wins on early downs almost everywhere:** 30 of 32 teams were more efficient passing on 1st down
-  (league gap +0.18 EPA/play) and 29 of 32 on 2nd down (+0.14).
-- **Yet teams still run half the time on 1st down** (median pass rate 50%). A team's own pass-rush gap
-  had almost no relationship with how often it passed (r ≈ 0.03 on 1st down).
-- **3rd & short is a toss-up:** the league average slightly favors running (−0.04, not significant).
-  Most teams have only 20–30 plays of each type there, so team cells in that column are noisy.
-- **CIN and CLE** were the only teams where running matched or beat passing on 1st down.
-
-EPA doesn't capture everything running offers, such as setting up play-action, so the gap overstates
-how much more teams *should* pass. Still, it's consistent with the long-standing analytics finding that
-early-down passing is undervalued.
+- **The most run-leaning 1st-down offenses** were BUF (41% pass, −9.8 points vs. expected), CAR, WAS and ATL.
+  The most pass-leaning were CIN (+5.5), ARI, KC and LA.
+- **Tendencies change by down.** A team's 1st-down PROE barely predicts its 2nd-down PROE (r = 0.21).
+  BUF and WAS run heavily on 1st down, then pass more than expected on 2nd.
+- **BAL and NYJ** were the most run-heavy on 2nd down (about −14 points). **SEA, CHI and NYJ** were
+  the most run-heavy on 3rd down (about −12).
+- **In competitive situations the league runs slightly more than `xpass` predicts** (NFL row: −1.8 on 1st
+  down, −4.1 on 3rd), because the model is fit on all plays including garbage time. Compare teams to
+  the NFL row rather than to zero.
 
 ## Weekly matchup mismatches
 
@@ -179,7 +178,7 @@ jupyter notebook notebooks/
 
 ## Ideas for next analyses
 
-- Pass vs. rush EPA by field position (does running pay off near the goal line?)
+- Pass vs. rush EPA by down and field position (does running pay off near the goal line?)
 - Do defenses exploit RB tells? EPA on RB2's runs vs. his passes
 - Year-over-year stability of EPA vs. CPOE for QBs
 - QB performance under pressure, on 3rd down, and in the red zone
