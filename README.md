@@ -34,19 +34,20 @@ Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axe
 ![2025 pass tendency by down](figures/pass_tendency_by_down_2025.png)
 
 Each cell shows how often a team **passed** on that down, followed by its **pass rate over expected**
-(PROE): the actual pass rate minus nflverse's `xpass`, which accounts for distance, field position,
-score and time. The color shows PROE (blue = passes more than the situation calls for, orange = runs more),
-so it reflects play-calling tendency rather than game script.
+relative to the league average. Pass rate over expected subtracts nflverse's `xpass`, which accounts for
+distance, field position, score and time, so it reflects play-calling rather than game script. It's then
+re-centered so the league average is 0 on every down. The color uses the same measure: blue passes more
+than a typical team would in the same situations, orange runs more.
 
-- **The most run-leaning 1st-down offenses** were BUF (41% pass, −9.8 points vs. expected), CAR, WAS and ATL.
-  The most pass-leaning were CIN (+5.5), ARI, KC and LA.
-- **Tendencies change by down.** A team's 1st-down PROE barely predicts its 2nd-down PROE (r = 0.21).
-  BUF and WAS run heavily on 1st down, then pass more than expected on 2nd.
-- **BAL and NYJ** were the most run-heavy on 2nd down (about −14 points). **SEA, CHI and NYJ** were
-  the most run-heavy on 3rd down (about −12).
-- **In competitive situations the league runs slightly more than `xpass` predicts** (NFL row: −1.8 on 1st
-  down, −4.1 on 3rd), because the model is fit on all plays including garbage time. Compare teams to
-  the NFL row rather than to zero.
+- **The most run-leaning 1st-down offenses** were BUF (41% pass, −8.1 points vs. league average), CAR, WAS
+  and ATL. The most pass-leaning were CIN (+7.3), ARI, KC and LA.
+- **Tendencies change by down.** A team's 1st-down tendency barely predicts its 2nd-down tendency (r = 0.21).
+  BUF and WAS run heavily on 1st down, then pass more than average on 2nd.
+- **BAL and NYJ** were the most run-heavy on 2nd down (−14 points each). **SEA, CHI and NYJ** were the most
+  run-heavy on 3rd down (about −8), while **NE** was the most pass-heavy (+8.8).
+- **Why re-center?** `xpass` is fit on all plays, including garbage time. In the competitive situations
+  analyzed here, the whole league runs slightly more than it predicts (about 2 points on 1st down and 4 on
+  3rd), so comparing to the league average is fairer than comparing to zero.
 
 ## Weekly matchup mismatches
 

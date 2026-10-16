@@ -63,8 +63,8 @@ def main() -> None:
     tendency.round(3).to_csv(output / f"pass_tendency_by_down_{args.season}.csv", index=False)
     plot_pass_tendency_by_down(
         tendency,
-        title=f"{args.season}: who passes or runs more than expected, by down?",
-        subtitle=f"Pass rate and pass rate over expected  ·  {through}  ·  {scope}",
+        title=f"{args.season}: who passes or runs more, by down?",
+        subtitle=f"Situation-adjusted, vs. league average  ·  {through}  ·  {scope}",
         save_path=figures / f"pass_tendency_by_down_{args.season}.png",
     )
 

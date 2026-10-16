@@ -154,8 +154,11 @@ def pass_tendency_by_down(plays: pd.DataFrame) -> pd.DataFrame:
     `pass_rate` is the share of plays that were dropbacks. `proe` (pass rate
     over expected) subtracts nflverse's `xpass`, the expected pass probability
     given down, distance, field position, score and time, so it isolates the
-    play-caller's tendency from game situation. `significant` marks PROE whose
-    95% interval excludes zero. Includes an "NFL" row per down.
+    play-caller's tendency from game situation. `proe_vs_nfl` re-centers PROE
+    on the league average for that down (the league itself runs slightly more
+    than `xpass` predicts in these competitive situations), and `significant`
+    marks teams whose 95% interval for `proe_vs_nfl` excludes zero. Includes
+    an "NFL" row per down.
     """
     plays = plays[plays["down"].between(1, 3) & plays["xpass"].notna()].copy()
     plays["situation"] = plays["down"].astype(int).map(dict(enumerate(DOWNS, start=1)))
@@ -167,7 +170,10 @@ def pass_tendency_by_down(plays: pd.DataFrame) -> pd.DataFrame:
             plays=("pass", "size"), pass_rate=("pass", "mean"), xpass=("xpass", "mean"),
             proe=("residual", "mean"), proe_sd=("residual", "std")))
     out = pd.concat(frames).rename_axis(["team", "situation"]).reset_index()
-    out["significant"] = out["proe"].abs() > 1.96 * out["proe_sd"] / np.sqrt(out["plays"])
+    league = out[out["team"] == "NFL"].set_index("situation")["proe"]
+    out["proe_vs_nfl"] = out["proe"] - out["situation"].map(league)
+    out["significant"] = (out["team"] != "NFL") & (
+        out["proe_vs_nfl"].abs() > 1.96 * out["proe_sd"] / np.sqrt(out["plays"]))
     return out.drop(columns="proe_sd")
 
 
@@ -182,13 +188,14 @@ def plot_pass_tendency_by_down(tendency: pd.DataFrame, title: str, subtitle: str
                                limit: float = 0.12, save_path: str | None = None):
     """Heatmap of pass tendency: teams as rows, downs as columns.
 
-    Each cell shows the pass rate (large) and pass rate over expected (small,
-    ★ = 95% interval excludes zero). Color is pass rate over expected: blue
-    passes more than the situation calls for, orange runs more. Rows are
-    sorted by 1st-down PROE with the league average on top.
+    Each cell shows the pass rate (large) and pass rate over expected relative
+    to the league average for that down (small, ★ = 95% interval excludes the
+    league average). Color uses the same measure: blue passes more than the
+    average team would in the same situations, orange runs more. Rows are
+    sorted by 1st down with the league average (0 by definition) on top.
     """
     apply_style()
-    wide = tendency.pivot(index="team", columns="situation", values="proe")
+    wide = tendency.pivot(index="team", columns="situation", values="proe_vs_nfl")
     order = ["NFL"] + list(wide.drop("NFL")[DOWNS[0]].sort_values(ascending=False).index)
     cells = tendency.set_index(["team", "situation"])
 
@@ -200,15 +207,15 @@ def plot_pass_tendency_by_down(tendency: pd.DataFrame, title: str, subtitle: str
         y = n_rows - 1 - row
         for col, situation in enumerate(DOWNS):
             cell = cells.loc[(team, situation)]
-            color = cmap(norm(np.clip(cell["proe"], -limit, limit)))
+            color = cmap(norm(np.clip(cell["proe_vs_nfl"], -limit, limit)))
             ax.add_patch(plt.Rectangle((col + 0.02, y + 0.04), 0.96, 0.92,
                                        facecolor=color, linewidth=0))
             r, g, b, _ = color
             ink = "white" if (0.299 * r + 0.587 * g + 0.114 * b) < 0.55 else TEXT_PRIMARY
             ax.text(col + 0.36, y + 0.5, f"{cell['pass_rate']:.0%}", ha="center", va="center",
                     fontsize=9, fontweight="bold", color=ink)
-            star = " ★" if cell["significant"] and team != "NFL" else ""
-            ax.text(col + 0.76, y + 0.5, f"{cell['proe'] * 100:+.1f}{star}", ha="center",
+            star = " ★" if cell["significant"] else ""
+            ax.text(col + 0.76, y + 0.5, f"{cell['proe_vs_nfl'] * 100:+.1f}{star}", ha="center",
                     va="center", fontsize=7.5, color=ink)
 
     # Rule under the league-average row.
@@ -243,14 +250,14 @@ def plot_pass_tendency_by_down(tendency: pd.DataFrame, title: str, subtitle: str
     bar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax,
                        orientation="horizontal", ticks=[-limit, 0, limit])
     pts = round(limit * 100)
-    bar.ax.set_xticklabels([f"Runs more than expected\n−{pts} pts", "As expected\n0",
-                            f"Passes more than expected\n+{pts} pts"],
+    bar.ax.set_xticklabels([f"Runs more than avg team\n−{pts} pts", "League average\n0",
+                            f"Passes more than avg team\n+{pts} pts"],
                            fontsize=8, color=TEXT_SECONDARY)
     bar.outline.set_visible(False)
     bar.ax.tick_params(length=0)
 
-    add_footnote(fig, "Cell: pass rate, then pass rate over expected in points (★ = 95% interval "
-                      "excludes zero). Expected: nflverse xpass.  Data: nflverse via nflreadpy")
+    add_footnote(fig, "Cell: pass rate, then pass rate over expected vs. league avg, in points "
+                      "(★ = 95% significant). Expected: nflverse xpass.  Data: nflverse")
     fig.subplots_adjust(left=0.2, right=0.97, top=1 - 1.25 / fig.get_figheight(),
                         bottom=1.55 / fig.get_figheight())
 
