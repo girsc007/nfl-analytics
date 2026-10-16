@@ -29,6 +29,30 @@ Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axe
 - **Good offenses are usually good at both** (r = 0.49 between pass and rush EPA).
   **BUF, LA and CHI** stand out as above average at both.
 
+## Weekly matchup mismatches
+
+![2026 week 6 matchups](figures/matchups_2026_wk06.png)
+
+`scripts/matchups.py` rates every team's **pass offense, rush offense, pass defense and rush defense**
+(EPA/play, using only games before the target week), then scores each offense-vs-defense matchup:
+
+> **edge** = (offense EPA/play − league avg) + (defense EPA/play allowed − league avg)
+
+A positive edge favors the offense; a negative edge favors the defense. `edge_sd` puts it in standard
+deviations, so pass and rush mismatches compare fairly.
+
+```bash
+python scripts/matchups.py                          # next week with unplayed games
+python scripts/matchups.py --season 2026 --week 8
+python scripts/matchups.py --prior-weight 0.25      # blend in last season's plays
+```
+
+**Does it work?** In a 2025 backtest, matchup edges correlated with what actually happened in the game:
+passing r = 0.20 in weeks 3–8 and 0.37 in weeks 9–18, rushing r ≈ 0.15. Early-season edges are
+exaggerated. Before week 9, games realized only about a third of the passing edge, and blending in
+last season didn't improve accuracy. Treat early-season edges as directional, and trust passing
+mismatches more than rushing ones.
+
 ## Does the running back tip off a pass? (2025 regular season)
 
 ![2025 RB pass tendencies](figures/rb_pass_tendencies_2025.png)
@@ -89,8 +113,10 @@ src/nfl_analytics/
   team_efficiency.py  team EPA, pass vs. rush split, and charts
   qb_stats.py         QB stats table and charts
   rb_tendencies.py    pass tendencies by running back on the field
+  matchups.py         pass/rush unit ratings and matchup edges
   style.py            shared chart styling
-scripts/make_charts.py  regenerate every chart and table
+scripts/make_charts.py  regenerate every season chart and table
+scripts/matchups.py     weekly matchup mismatches
 notebooks/
   01_team_efficiency.ipynb
   02_qb_stats.ipynb

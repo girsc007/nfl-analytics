@@ -37,9 +37,9 @@ def apply_style() -> None:
     })
 
 
-def add_subtitle(ax, text: str) -> None:
+def add_subtitle(ax, text: str, y: float = 1.015) -> None:
     """Place a muted subtitle line just under the axes title."""
-    ax.text(0, 1.015, text, transform=ax.transAxes, fontsize=10,
+    ax.text(0, y, text, transform=ax.transAxes, fontsize=10,
             color=TEXT_SECONDARY, va="bottom")
 
 
