@@ -5,7 +5,7 @@ from matplotlib import patheffects
 import pandas as pd
 from adjustText import adjust_text
 
-from .logos import plot_logos
+from .logos import axis_logo, plot_logos, team_logo
 from .style import (ACCENT, SURFACE, TEXT_MUTED, TEXT_PRIMARY, TEXT_SECONDARY,
                     add_footnote, add_subtitle, apply_style)
 
@@ -97,8 +97,14 @@ def plot_epa_ranking(qbs: pd.DataFrame, title: str, subtitle: str,
     ranked = qbs.sort_values("epa_per_db")
     fig, ax = plt.subplots(figsize=(9, max(5, 0.32 * len(ranked) + 1.5)))
 
-    labels = [f"{n} ({t})" for n, t in zip(ranked["name"], ranked["team"])]
-    ax.barh(labels, ranked["epa_per_db"], height=0.7, color=ACCENT, zorder=3)
+    # The logo shows the team; fall back to "(TEAM)" in the label if it's missing.
+    labels = [n if team_logo(t) is not None else f"{n} ({t})"
+              for n, t in zip(ranked["name"], ranked["team"])]
+    ax.barh(range(len(ranked)), ranked["epa_per_db"], height=0.7, color=ACCENT, zorder=3)
+    ax.set_yticks(range(len(ranked)), labels)
+    logo_size = 0.24
+    for i, team in enumerate(ranked["team"]):
+        axis_logo(ax, team, i, offset=4 + logo_size * 36, size=logo_size)
     ax.axvline(0, color=TEXT_SECONDARY, linewidth=1, zorder=4)
 
     pad = 0.005
@@ -108,7 +114,9 @@ def plot_epa_ranking(qbs: pd.DataFrame, title: str, subtitle: str,
                 fontsize=8, color=TEXT_SECONDARY)
 
     ax.grid(axis="y", visible=False)
-    ax.tick_params(axis="y", length=0, labelsize=9, labelcolor=TEXT_PRIMARY)
+    # Push the names left to make room for the logos beside the axis.
+    ax.tick_params(axis="y", length=0, labelsize=9, labelcolor=TEXT_PRIMARY,
+                   pad=logo_size * 72 + 8)
     ax.set_ylim(-0.6, len(ranked) - 0.4)
     ax.margins(x=0.12)
     ax.set_xlabel("EPA per dropback")

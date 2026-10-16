@@ -13,6 +13,7 @@ import nflreadpy as nfl
 import numpy as np
 import pandas as pd
 
+from .logos import axis_logo, team_logo
 from .style import (SERIES_1, SERIES_2, SURFACE, TEXT_MUTED, TEXT_PRIMARY,
                     TEXT_SECONDARY, add_footnote, add_subtitle, apply_style)
 
@@ -136,10 +137,17 @@ def plot_rb_tendencies(stats: pd.DataFrame, title: str, subtitle: str,
             ax.text(value * 100 + (0.9 if right else -0.9), yi, name, va="center",
                     ha="left" if right else "right", fontsize=8.5, color=TEXT_SECONDARY)
 
-    gap_labels = [f"{team}   {g * 100:+.1f}{' *' if s else ''}"
-                  for team, g, s in zip(ranked.index, ranked["proe_gap"], ranked["significant"])]
+    # Each row: gap value, then the team logo beside the axis. Teams without a
+    # logo keep their abbreviation in the label.
+    logo_size = 0.3
+    gap_labels = []
+    for yi, team, g, sig in zip(y, ranked.index, ranked["proe_gap"], ranked["significant"]):
+        gap = f"{g * 100:+.1f}{' *' if sig else '  '}"
+        gap_labels.append(gap if team_logo(team) is not None else f"{team}   {gap}")
+        axis_logo(ax, team, yi, offset=4 + logo_size * 36, size=logo_size)
     ax.set_yticks(y, gap_labels)
-    ax.tick_params(axis="y", length=0, labelsize=9.5, labelcolor=TEXT_PRIMARY)
+    ax.tick_params(axis="y", length=0, labelsize=9.5, labelcolor=TEXT_PRIMARY,
+                   pad=logo_size * 72 + 8)
     ax.grid(axis="y", visible=False)
     ax.set_ylim(-0.7, len(ranked) - 0.3)
     ax.margins(x=0.22)
@@ -149,7 +157,7 @@ def plot_rb_tendencies(stats: pd.DataFrame, title: str, subtitle: str,
     add_subtitle(ax, subtitle)
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.09), ncol=2, frameon=False,
               fontsize=9.5, labelcolor=TEXT_SECONDARY)
-    add_footnote(fig, "Team label shows the RB2 − RB1 gap in points; * = 95% interval excludes zero.  "
+    add_footnote(fig, "Number beside each logo is the RB2 − RB1 gap in points; * = 95% interval excludes zero.  "
                       "Expected pass rate: nflverse xpass.  Data: nflverse via nflreadpy")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
 

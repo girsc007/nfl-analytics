@@ -18,6 +18,7 @@ import nflreadpy as nfl
 import numpy as np
 import pandas as pd
 
+from .logos import axis_logo, team_logo
 from .style import (SERIES_1, SERIES_2, TEXT_PRIMARY, TEXT_SECONDARY,
                     add_footnote, add_subtitle, apply_style)
 
@@ -155,10 +156,26 @@ def plot_matchup_edges(edges: pd.DataFrame, title: str, subtitle: str, top: int 
     ax.barh(y, shown["edge"], height=0.65, color=colors, zorder=3)
     ax.axvline(0, color=TEXT_SECONDARY, linewidth=1, zorder=4)
 
-    labels = [f"{o} {k} O  vs.  {d} {k} D" for o, d, k in
-              zip(shown["offense"], shown["defense"], shown["kind"])]
+    # Each row reads "[offense logo] vs. [defense logo]" beside the axis; bar
+    # color and the legend say whether it's the passing or rushing matchup.
+    # Rows with a missing logo fall back to text.
+    logo_size = 0.32
+    step = logo_size * 72  # one logo width, in points
+    labels = []
+    for yi, off, dfn, kind in zip(y, shown["offense"], shown["defense"], shown["kind"]):
+        if team_logo(off) is None or team_logo(dfn) is None:
+            labels.append(f"{off} {kind} O  vs.  {dfn} {kind} D")
+            continue
+        labels.append("")
+        axis_logo(ax, dfn, yi, offset=6 + step / 2, size=logo_size)
+        ax.annotate("vs.", (0, yi), xycoords=("axes fraction", "data"),
+                    xytext=(-(6 + step + 14), 0), textcoords="offset points",
+                    ha="center", va="center", fontsize=9, color=TEXT_SECONDARY,
+                    annotation_clip=False)
+        axis_logo(ax, off, yi, offset=6 + step * 1.5 + 28, size=logo_size)
     ax.set_yticks(y, labels)
-    ax.tick_params(axis="y", length=0, labelsize=9.5, labelcolor=TEXT_PRIMARY)
+    ax.tick_params(axis="y", length=0, labelsize=9.5, labelcolor=TEXT_PRIMARY,
+                   pad=6 if any(labels) else 0)
     ax.grid(axis="y", visible=False)
 
     limit = shown["edge"].abs().max() * 1.25
@@ -168,10 +185,11 @@ def plot_matchup_edges(edges: pd.DataFrame, title: str, subtitle: str, top: int 
         ax.text(value + (pad if value >= 0 else -pad), yi, f"{value:+.2f}", va="center",
                 ha="left" if value >= 0 else "right", fontsize=8.5, color=TEXT_SECONDARY)
 
-    ax.text(0.99, 1.0, "Offense advantage  →", transform=ax.transAxes, ha="right",
-            va="bottom", fontsize=9.5, color=TEXT_SECONDARY)
-    ax.text(0.01, 1.0, "←  Defense advantage", transform=ax.transAxes, ha="left",
-            va="bottom", fontsize=9.5, color=TEXT_SECONDARY)
+    # Direction labels point outward from the zero line.
+    for text, dx, ha in [("←  Defense advantage", -8, "right"), ("Offense advantage  →", 8, "left")]:
+        ax.annotate(text, (0, 1.0), xycoords=("data", "axes fraction"), xytext=(dx, 2),
+                    textcoords="offset points", ha=ha, va="bottom", fontsize=9.5,
+                    color=TEXT_SECONDARY, annotation_clip=False)
 
     handles = [plt.Rectangle((0, 0), 1, 1, color=SERIES_1),
                plt.Rectangle((0, 0), 1, 1, color=SERIES_2)]
@@ -180,6 +198,12 @@ def plot_matchup_edges(edges: pd.DataFrame, title: str, subtitle: str, top: int 
               labelcolor=TEXT_SECONDARY)
 
     ax.set_xlabel("Matchup edge: expected EPA/play vs. league average")
+    if not any(labels):
+        # Header centered over the "vs." column of the logo pairs.
+        ax.annotate("Offense  vs.  Defense", (0, 1.0), xycoords="axes fraction",
+                    xytext=(-(6 + step + 14), 2), textcoords="offset points",
+                    ha="center", va="bottom", fontsize=9, color=TEXT_SECONDARY,
+                    annotation_clip=False)
     ax.set_title(title, pad=40)
     add_subtitle(ax, subtitle, y=1.06)  # sits above the direction labels
     add_footnote(fig, "Edge = offense rating vs. avg + defense rating (EPA/play allowed) vs. avg  ·  "

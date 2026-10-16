@@ -80,3 +80,21 @@ def plot_team_points(ax, x, y, teams, size: float = 0.42, color: str = "#2a78d6"
             ax.scatter([xi], [yi], s=70, color=color, edgecolor="white", linewidth=2, zorder=3)
             labels.append(ax.text(xi, yi, team, fontsize=9, fontweight="bold", color=label_color))
     return labels
+
+
+def axis_logo(ax, team: str, y: float, offset: float, size: float = 0.26):
+    """Draw a team logo in the y-axis label area, `offset` points left of the axis.
+
+    Positioned in (axes fraction, data) coordinates, so it lines up with a bar
+    or row at data value `y`. Returns the artist, or None if no logo exists.
+    """
+    logo = team_logo(team)
+    if logo is None:
+        return None
+    zoom = size * 72 / max(logo.shape[:2])
+    box = AnnotationBbox(OffsetImage(logo, zoom=zoom), (0, y),
+                         xycoords=("axes fraction", "data"), xybox=(-offset, 0),
+                         boxcoords="offset points", frameon=False, pad=0,
+                         annotation_clip=False)
+    ax.add_artist(box)
+    return box
