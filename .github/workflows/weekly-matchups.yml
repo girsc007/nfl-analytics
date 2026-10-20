@@ -1,0 +1,46 @@
+name: Weekly matchup update
+
+on:
+  schedule:
+    # Tuesdays 13:00 UTC (9am ET) — after Monday Night Football and nflverse's
+    # post-game data refresh, before the new week's early lines are usually set.
+    - cron: "0 13 * * 2"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-matchups
+  cancel-in-progress: false
+
+jobs:
+  update-matchups:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - run: pip install -r requirements.txt
+
+      - name: Run weekly matchup preview
+        run: python scripts/matchups.py
+
+      - name: Point README at the latest chart
+        run: python scripts/sync_readme_matchups.py
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git add -A
+          git commit -m "Weekly matchup update: $(date -u +%Y-%m-%d)"
+          git push
