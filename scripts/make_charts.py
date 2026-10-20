@@ -1,8 +1,8 @@
 """Build every chart and table for a season.
 
 Usage:
-    python scripts/make_charts.py                 # 2025 regular season
-    python scripts/make_charts.py --season 2026   # current season to date
+    python scripts/make_charts.py                 # 2026 season to date
+    python scripts/make_charts.py --season 2025   # final 2025 regular season
     python scripts/make_charts.py --min-dropbacks 100 --all-plays
 """
 
@@ -13,17 +13,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from nfl_analytics import (load_participation, load_pbp, offensive_plays,  # noqa: E402
-                           pass_tendency_by_down, plot_epa_ranking, plot_epa_vs_cpoe,
-                           plot_pass_tendency_by_down, plot_pass_vs_rush, plot_pressure_dumbbell,
-                           plot_rb_tendencies, plot_team_efficiency, qb_pressure_splits, qb_stats,
-                           rb_pass_tendencies, team_epa, team_pass_rush_epa)
+from nfl_analytics import (load_pbp, offensive_plays, pass_tendency_by_down,  # noqa: E402
+                           plot_epa_ranking, plot_epa_vs_cpoe, plot_pass_tendency_by_down,
+                           plot_pass_vs_rush, plot_team_efficiency, qb_stats, team_epa,
+                           team_pass_rush_epa)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--season", type=int, default=2025)
+    parser.add_argument("--season", type=int, default=2026)
     parser.add_argument("--min-dropbacks", type=int, default=None,
                         help="QB qualifying threshold (default: 15 per week played)")
     parser.add_argument("--all-plays", action="store_true",
@@ -68,17 +67,6 @@ def main() -> None:
         save_path=figures / f"pass_tendency_by_down_{args.season}.png",
     )
 
-    rb_min = max(40, 8 * weeks)
-    rbs = rb_pass_tendencies(plays, load_participation(args.season), min_plays=rb_min)
-    rbs.round(3).to_csv(output / f"rb_pass_tendencies_{args.season}.csv")
-    plot_rb_tendencies(
-        rbs,
-        title=f"{args.season}: does the running back tip off a pass?",
-        subtitle=f"Pass rate over expected with each team's top two backs on the field alone  ·  "
-                 f"{through}  ·  min. {rb_min} plays each",
-        save_path=figures / f"rb_pass_tendencies_{args.season}.png",
-    )
-
     min_db = args.min_dropbacks or 15 * weeks
     qbs = qb_stats(plays, min_dropbacks=min_db)
     qbs.round(3).to_csv(output / f"qb_stats_{args.season}.csv")
@@ -94,16 +82,6 @@ def main() -> None:
         title=f"{args.season} QB EPA per dropback",
         subtitle=qb_subtitle,
         save_path=figures / f"qb_epa_ranking_{args.season}.png",
-    )
-
-    pressure = qb_pressure_splits(plays, load_participation(args.season, ["was_pressure"]),
-                                  min_dropbacks=min_db)
-    pressure.round(3).to_csv(output / f"qb_pressure_{args.season}.csv")
-    plot_pressure_dumbbell(
-        pressure,
-        title=f"{args.season} QBs: clean pocket vs. under pressure",
-        subtitle=qb_subtitle,
-        save_path=figures / f"qb_pressure_{args.season}.png",
     )
 
     print("\nTop 5 teams by net EPA/play:")

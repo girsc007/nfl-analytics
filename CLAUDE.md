@@ -13,8 +13,8 @@ https://github.com/girsc007/nfl-analytics.
 ```bash
 pip install -r requirements.txt
 
-python scripts/make_charts.py                 # all season charts + CSVs (default season 2025)
-python scripts/make_charts.py --season 2026   # current season to date
+python scripts/make_charts.py                 # all season charts + CSVs (default season 2026, current season to date)
+python scripts/make_charts.py --season 2025   # final 2025 regular season
 python scripts/make_charts.py --all-plays     # disable the garbage-time filter
 python scripts/matchups.py                    # weekly mismatch preview (next unplayed week)
 python scripts/matchups.py --season 2026 --week 8 --no-adjust --shrinkage 200 --prior-weight 0.25
@@ -38,8 +38,9 @@ If `python` isn't on PATH in the sandbox, try `bash -l -c "..."`.
 - nflverse conventions the code relies on: `pass == 1` includes scrambles and sacks, so "rush" means
   designed runs; QB stats use `qb_dropback`, the `id`/`name` columns (credit scrambles/sacks to the QB)
   and `qb_epa`; tendencies use `xpass` (expected pass probability) to get pass rate over expected.
-- Participation data (`rb_tendencies.load_participation(season, columns)`) joins to play-by-play on
-  `game_id`/`play_id` ↔ `nflverse_game_id`/`play_id`. It provides on-field players and `was_pressure`.
+- No participation data: analyses that needed it (QB pressure splits, RB on-field tendencies) were
+  dropped because nflverse only publishes participation data a season after the fact, so it can't track
+  the current season. Everything here runs on play-by-play alone.
 - `matchups.py`: unit ratings (pass/rush × offense/defense) come from a weighted **ridge regression**
   (EPA = league + offense + defense), which both adjusts for opponents and shrinks small samples. The
   default shrinkage of 200 was chosen by backtesting 2025; ratings use only games before the target week.
