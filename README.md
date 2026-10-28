@@ -3,33 +3,33 @@
 Exploring NFL team and quarterback efficiency with play-by-play data from
 [nflverse](https://github.com/nflverse), using Python, pandas and matplotlib.
 
-## Team efficiency (2026 season, through week 6)
+## Team efficiency (2026 season, through week 7)
 
 ![2026 team efficiency](figures/team_efficiency_2026.png)
 
 Each dot is a team: **offensive EPA per play** (x) vs. **defensive EPA per play allowed** (y,
 inverted so up is good). Teams in the top-right are good on both sides of the ball.
 
-- **SF** and **KC** had the best combination of offense and defense.
+- **SF**, **CIN** and **CHI** had the best combination of offense and defense.
 - **MIN** and **SEA** had the best defenses, despite struggling offenses.
-- **DAL** had a top-nine offense undone by the league's worst defense.
+- **DAL** had a top-four offense undone by the league's worst defense.
 
-## Passing vs. rushing (2026 season, through week 6)
+## Passing vs. rushing (2026 season, through week 7)
 
 ![2026 pass vs. rush EPA](figures/team_pass_vs_rush_2026.png)
 
 Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axes on the same scale.
 
-- **Passing is more efficient:** the league averaged **+0.067** EPA per dropback vs. **−0.102** per designed run.
-  Only **KC, IND, PIT, MIA, ATL, TB and TEN** ran more efficiently than they passed.
+- **Passing is more efficient:** the league averaged **+0.084** EPA per dropback vs. **−0.095** per designed run.
+  Only **KC, IND, PIT, ATL, TB and TEN** ran more efficiently than they passed.
 - **Passing separates teams:** pass EPA varies more between teams than rush EPA
-  (std. dev. 0.16 vs. 0.12). **BUF and SF** passed far better than anyone else.
-- **Run-heavy ≠ run-efficient:** pass rate has only a weak correlation with pass efficiency so far (r = 0.18).
-  PIT ran better than it passed yet had the 2nd-highest pass rate.
-- **Good offenses aren't reliably good at both yet** (r = 0.14 between pass and rush EPA, far weaker than a full
-  season typically shows). **BUF, SF and BAL** stand out as above average at both.
+  (std. dev. 0.15 vs. 0.11). **BUF** passed far better than anyone else, ahead of **BAL** and **CHI**.
+- **Run-heavy ≠ run-efficient:** pass rate has only a weak correlation with pass efficiency so far (r = 0.21).
+  PIT ran better than it passed yet had the 3rd-highest pass rate.
+- **Good offenses aren't reliably good at both yet** (r = 0.08 between pass and rush EPA, far weaker than a full
+  season typically shows). **BUF, SF, KC and DAL** stand out as above average at both.
 
-## Pass/run tendencies by down (2026 season, through week 6)
+## Pass/run tendencies by down (2026 season, through week 7)
 
 ![2026 pass tendency by down](figures/pass_tendency_by_down_2026.png)
 
@@ -39,11 +39,11 @@ distance, field position, score and time, so it reflects play-calling rather tha
 re-centered so the league average is 0 on every down. The color uses the same measure: blue passes more
 than a typical team would in the same situations, orange runs more.
 
-- **The most run-leaning 1st-down offenses** were LAC (37% pass, −13.2 points vs. league average) and
-  BUF (−11.2). The most pass-leaning were CAR (+11.9), CIN (+11.7), CLE (+8.6) and PIT (+7.8).
-- **Tendencies change by down.** A team's 1st-down tendency barely predicts its 2nd-down tendency (r = 0.21).
-- **LV and NYG** were the most run-heavy on 2nd down (about −11 and −10 points). **MIA** was the most
-  run-heavy on 3rd down by far (−16.7), while **MIN, PIT and TB** were the most pass-heavy (around +7 to +8).
+- **The most run-leaning 1st-down offenses** were LAC (37% pass, −13.0 points vs. league average) and
+  BUF (−11.0). The most pass-leaning were CIN (+13.3), CAR (+12.2), PIT (+7.5) and LV (+7.0).
+- **Tendencies change by down.** A team's 1st-down tendency barely predicts its 2nd-down tendency (r = 0.25).
+- **LV, NYG and TEN** were the most run-heavy on 2nd down (about −10 to −11 points). **MIA** was the most
+  run-heavy on 3rd down by far (−14.6), while **MIN, KC and TB** were the most pass-heavy (around +6 to +7).
 - **Why re-center?** `xpass` is fit on all plays, including garbage time. In the competitive situations
   analyzed here, the whole league runs slightly more than it predicts (about 1 point on 1st down and 3 on
   3rd), so comparing to the league average is fairer than comparing to zero.
@@ -88,24 +88,24 @@ and shrinking them cut prediction error by about 22%. Opponent adjustment adds a
 top, mainly for rushing, though one season is not enough to be confident about a gain that size.
 Passing mismatches remain far more predictive than rushing ones.
 
-## Quarterbacks (2026 season, through week 6)
+## Quarterbacks (2026 season, through week 7)
 
 ![2026 QB accuracy vs. production](figures/qb_epa_vs_cpoe_2026.png)
 
 | # | QB | Team | Dropbacks | EPA/db | CPOE | Success % |
 |---|---|---|---:|---:|---:|---:|
-| 1 | J.Allen | BUF | 179 | +0.367 | +5.8 | 46.9 |
-| 2 | B.Purdy | SF | 161 | +0.342 | +3.3 | 54.0 |
-| 3 | J.Burrow | CIN | 162 | +0.240 | +6.6 | 51.9 |
-| 4 | D.Maye | NE | 173 | +0.236 | +4.4 | 52.0 |
-| 5 | T.Lawrence | JAX | 176 | +0.230 | +2.5 | 50.0 |
-| 6 | J.Goff | DET | 129 | +0.227 | -0.1 | 48.8 |
-| 7 | C.Stroud | HOU | 209 | +0.221 | +4.6 | 51.7 |
-| 8 | K.Cousins | LV | 189 | +0.217 | -0.8 | 50.3 |
-| 9 | B.Young | CAR | 182 | +0.212 | +2.5 | 45.1 |
-| 10 | P.Mahomes | KC | 147 | +0.203 | +1.6 | 50.3 |
+| 1 | C.Williams | CHI | 124 | +0.406 | +7.3 | 50.8 |
+| 2 | J.Allen | BUF | 179 | +0.367 | +5.8 | 46.9 |
+| 3 | B.Purdy | SF | 186 | +0.276 | +2.9 | 53.8 |
+| 4 | J.Burrow | CIN | 189 | +0.267 | +7.7 | 52.9 |
+| 5 | J.Goff | DET | 162 | +0.237 | -0.3 | 50.0 |
+| 6 | D.Maye | NE | 199 | +0.231 | +5.0 | 51.8 |
+| 7 | T.Lawrence | JAX | 176 | +0.230 | +2.5 | 50.0 |
+| 8 | C.Stroud | HOU | 239 | +0.191 | +2.7 | 49.8 |
+| 9 | B.Young | CAR | 193 | +0.174 | +1.9 | 45.1 |
+| 10 | D.Prescott | DAL | 215 | +0.164 | +1.3 | 48.8 |
 
-Minimum 90 dropbacks (15 per week played). Full table: [`output/qb_stats_2026.csv`](output/qb_stats_2026.csv).
+Minimum 105 dropbacks (15 per week played). Full table: [`output/qb_stats_2026.csv`](output/qb_stats_2026.csv).
 Ranked bar chart: [`figures/qb_epa_ranking_2026.png`](figures/qb_epa_ranking_2026.png).
 
 ## Methodology
