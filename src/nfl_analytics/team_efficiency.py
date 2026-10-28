@@ -6,7 +6,7 @@ import pandas as pd
 from adjustText import adjust_text
 from matplotlib.colors import LinearSegmentedColormap
 
-from .logos import axis_logo, plot_team_points, team_logo
+from .logos import axis_logo, plot_team_points, spread_logos, team_logo
 from .style import (DIVERGING_MID, SERIES_1, SERIES_2, SURFACE, TEXT_MUTED,
                     TEXT_PRIMARY, TEXT_SECONDARY, add_footnote, add_subtitle,
                     apply_style)
@@ -50,7 +50,7 @@ def plot_team_efficiency(teams: pd.DataFrame, title: str, subtitle: str,
     ax.margins(x=0.06, y=0.1)
     ax.invert_yaxis()
 
-    labels = plot_team_points(ax, teams["off_epa"], teams["def_epa"], teams.index)
+    labels, boxes = plot_team_points(ax, teams["off_epa"], teams["def_epa"], teams.index)
     if labels:
         adjust_text(labels, x=teams["off_epa"].values, y=teams["def_epa"].values, ax=ax,
                     expand=(1.3, 1.5))
@@ -68,6 +68,7 @@ def plot_team_efficiency(teams: pd.DataFrame, title: str, subtitle: str,
     add_subtitle(ax, subtitle)
     add_footnote(fig, "Data: nflverse via nflreadpy  ·  Dashed lines = league average")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
+    spread_logos(ax, boxes, color=TEXT_MUTED)
 
     if save_path:
         fig.savefig(save_path, dpi=150)
@@ -106,7 +107,7 @@ def plot_pass_vs_rush(split: pd.DataFrame, title: str, subtitle: str,
     ax.axvline(split["pass_epa"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
     ax.axhline(split["rush_epa"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
     # Draw the logos first so the axis limits below are fit to the data.
-    labels = plot_team_points(ax, split["pass_epa"], split["rush_epa"], split.index)
+    labels, _ = plot_team_points(ax, split["pass_epa"], split["rush_epa"], split.index)
 
     ax.set_aspect("equal", adjustable="datalim")
     ax.margins(0.08)

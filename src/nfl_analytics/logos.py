@@ -66,12 +66,63 @@ def plot_logos(ax, x, y, teams, size: float = 0.42) -> list:
     return boxes
 
 
+def spread_logos(ax, boxes: list, color: str = "#8a8a8a", fill: float = 0.9,
+                 gap: float = 4, iterations: int = 300) -> None:
+    """Nudge overlapping logos apart, with a leader line back to each true point.
+
+    Call after the final layout (tight_layout) so data-to-screen scale is fixed.
+    Overlap is judged on each logo's bounding box scaled by `fill`, since logos
+    have some transparent padding; moved logos keep `gap` points apart. Logos that
+    don't overlap stay put.
+    """
+    drawn = [box for box in boxes if box is not None]
+    if len(drawn) < 2:
+        return
+    # Freeze limits: the offsets below are computed against the current scale.
+    ax.set_xlim(ax.get_xlim())
+    ax.set_ylim(ax.get_ylim())
+    to_points = 72 / ax.figure.dpi
+    origin = np.array([ax.transData.transform(box.xy) for box in drawn]) * to_points
+    sizes = np.array([np.array(box.offsetbox.get_data().shape[1::-1]) * box.offsetbox.get_zoom()
+                      for box in drawn]) * fill
+    pos = origin.copy()
+    for _ in range(iterations):
+        moved = False
+        for i in range(len(pos)):
+            for j in range(i + 1, len(pos)):
+                delta = pos[j] - pos[i]
+                overlap = (sizes[i] + sizes[j]) / 2 + gap - np.abs(delta)
+                if (overlap <= 0).any():
+                    continue
+                # Separate along the axis that needs the smaller push.
+                axis = int(np.argmin(overlap))
+                sign = np.sign(delta[axis]) or (1 if i % 2 else -1)
+                step = np.zeros(2)
+                step[axis] = sign * overlap[axis] / 2
+                pos[i] -= step
+                pos[j] += step
+                moved = True
+        if not moved:
+            break
+
+    for box, start, end in zip(drawn, origin, pos):
+        offset = end - start
+        if np.hypot(*offset) < 1:
+            continue
+        box.remove()
+        ax.add_artist(AnnotationBbox(
+            box.offsetbox, box.xy, xybox=tuple(offset), boxcoords="offset points",
+            frameon=False, pad=0, zorder=3,
+            arrowprops=dict(arrowstyle="-", color=color, lw=0.7, shrinkA=0, shrinkB=0)))
+        ax.scatter([box.xy[0]], [box.xy[1]], s=8, color=color, zorder=2)
+
+
 def plot_team_points(ax, x, y, teams, size: float = 0.42, color: str = "#2a78d6",
                      label_color: str = "#0b0b0b") -> list:
     """Team logos as markers; any team without a logo gets a dot and a label.
 
-    Returns the fallback text labels so callers can include them in
-    label-collision adjustment.
+    Returns the fallback text labels (for label-collision adjustment) and the
+    per-point logo artists (for `spread_logos`).
     """
     boxes = plot_logos(ax, x, y, teams, size=size)
     labels = []
@@ -79,7 +130,7 @@ def plot_team_points(ax, x, y, teams, size: float = 0.42, color: str = "#2a78d6"
         if box is None:
             ax.scatter([xi], [yi], s=70, color=color, edgecolor="white", linewidth=2, zorder=3)
             labels.append(ax.text(xi, yi, team, fontsize=9, fontweight="bold", color=label_color))
-    return labels
+    return labels, boxes
 
 
 def axis_logo(ax, team: str, y: float, offset: float, size: float = 0.26):
