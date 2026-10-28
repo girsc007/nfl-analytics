@@ -46,12 +46,14 @@ def plot_epa_vs_cpoe(qbs: pd.DataFrame, title: str, subtitle: str,
                      save_path: str | None = None):
     """Scatter of CPOE (accuracy, x) vs. EPA per dropback (production, y)."""
     apply_style()
-    fig, ax = plt.subplots(figsize=(11, 8.5))
+    fig, ax = plt.subplots(figsize=(12, 9.5))
 
     boxes = plot_logos(ax, qbs["cpoe"], qbs["epa_per_db"], qbs["team"], size=0.34)
     missing = [box is None for box in boxes]
     ax.scatter(qbs["cpoe"][missing], qbs["epa_per_db"][missing], s=70, color=ACCENT,
                edgecolor=SURFACE, linewidth=2, zorder=3)
+    # Room around the extremes so corner QBs' logos and names stay inside the axes.
+    ax.margins(x=0.08, y=0.10)
     ax.axvline(qbs["cpoe"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
     ax.axhline(qbs["epa_per_db"].mean(), color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
 
