@@ -3,33 +3,33 @@
 Exploring NFL team and quarterback efficiency with play-by-play data from
 [nflverse](https://github.com/nflverse), using Python, pandas and matplotlib.
 
-## Team efficiency (2026 season, through week 7)
+## Team efficiency (2026 season, through week 8)
 
 ![2026 team efficiency](figures/team_efficiency_2026.png)
 
 Each dot is a team: **offensive EPA per play** (x) vs. **defensive EPA per play allowed** (y,
 inverted so up is good). Teams in the top-right are good on both sides of the ball.
 
-- **SF**, **CIN** and **CHI** had the best combination of offense and defense.
-- **MIN** and **SEA** had the best defenses, despite struggling offenses.
-- **DAL** had a top-four offense undone by the league's worst defense.
+- **SF**, **CHI** and **JAX** had the best combination of offense and defense.
+- **MIN** and **TB** had the best defenses, despite struggling offenses.
+- **DAL** had a top-four offense undone by the league's second-worst defense; **MIA** allowed the most EPA/play.
 
-## Passing vs. rushing (2026 season, through week 7)
+## Passing vs. rushing (2026 season, through week 8)
 
 ![2026 pass vs. rush EPA](figures/team_pass_vs_rush_2026.png)
 
 Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axes on the same scale.
 
-- **Passing is more efficient:** the league averaged **+0.084** EPA per dropback vs. **−0.095** per designed run.
-  Only **KC, IND, PIT, ATL, TB and TEN** ran more efficiently than they passed.
+- **Passing is more efficient:** the league averaged **+0.080** EPA per dropback vs. **−0.093** per designed run.
+  Only **IND, PIT, ATL and TB** ran more efficiently than they passed.
 - **Passing separates teams:** pass EPA varies more between teams than rush EPA
-  (std. dev. 0.15 vs. 0.11). **BUF** passed far better than anyone else, ahead of **BAL** and **CHI**.
-- **Run-heavy ≠ run-efficient:** pass rate has only a weak correlation with pass efficiency so far (r = 0.21).
-  PIT ran better than it passed yet had the 3rd-highest pass rate.
-- **Good offenses aren't reliably good at both yet** (r = 0.08 between pass and rush EPA, far weaker than a full
-  season typically shows). **BUF, SF, KC and DAL** stand out as above average at both.
+  (std. dev. 0.14 vs. 0.11). **BUF**, **CHI**, **CIN** and **LV** led a tight group of the best passing offenses.
+- **Run-heavy ≠ run-efficient:** pass rate has only a weak correlation with pass efficiency so far (r = 0.28).
+  PIT ran better than it passed yet had the 5th-highest pass rate.
+- **Good offenses aren't reliably good at both yet** (r = 0.05 between pass and rush EPA, far weaker than a full
+  season typically shows). **KC, SF, BUF and DAL** stand out as above average at both.
 
-## Pass/run tendencies by down (2026 season, through week 7)
+## Pass/run tendencies by down (2026 season, through week 8)
 
 ![2026 pass tendency by down](figures/pass_tendency_by_down_2026.png)
 
@@ -39,11 +39,11 @@ distance, field position, score and time, so it reflects play-calling rather tha
 re-centered so the league average is 0 on every down. The color uses the same measure: blue passes more
 than a typical team would in the same situations, orange runs more.
 
-- **The most run-leaning 1st-down offenses** were LAC (37% pass, −13.0 points vs. league average) and
-  BUF (−11.0). The most pass-leaning were CIN (+13.3), CAR (+12.2), PIT (+7.5) and LV (+7.0).
-- **Tendencies change by down.** A team's 1st-down tendency barely predicts its 2nd-down tendency (r = 0.25).
-- **LV, NYG and TEN** were the most run-heavy on 2nd down (about −10 to −11 points). **MIA** was the most
-  run-heavy on 3rd down by far (−14.6), while **MIN, KC and TB** were the most pass-heavy (around +6 to +7).
+- **The most run-leaning 1st-down offenses** were LAC (38% pass, −11.9 points vs. league average),
+  BUF (−9.2) and MIA (−8.8). The most pass-leaning were CIN (+15.3), CAR (+11.6), LV (+7.1) and SF (+6.7).
+- **Tendencies change by down.** A team's 1st-down tendency barely predicts its 2nd-down tendency (r = 0.30).
+- **LV, TB and NYG** were the most run-heavy on 2nd down (about −10 points). **MIA** was the most
+  run-heavy on 3rd down by far (−11.4), while **MIN** (+7.9) and **KC** (+6.1) were the most pass-heavy.
 - **Why re-center?** `xpass` is fit on all plays, including garbage time. In the competitive situations
   analyzed here, the whole league runs slightly more than it predicts (about 1 point on 1st down and 3 on
   3rd), so comparing to the league average is fairer than comparing to zero.
@@ -88,24 +88,24 @@ and shrinking them cut prediction error by about 22%. Opponent adjustment adds a
 top, mainly for rushing, though one season is not enough to be confident about a gain that size.
 Passing mismatches remain far more predictive than rushing ones.
 
-## Quarterbacks (2026 season, through week 7)
+## Quarterbacks (2026 season, through week 8)
 
 ![2026 QB accuracy vs. production](figures/qb_epa_vs_cpoe_2026.png)
 
 | # | QB | Team | Dropbacks | EPA/db | CPOE | Success % |
 |---|---|---|---:|---:|---:|---:|
-| 1 | C.Williams | CHI | 124 | +0.406 | +7.3 | 50.8 |
-| 2 | J.Allen | BUF | 179 | +0.367 | +5.8 | 46.9 |
-| 3 | B.Purdy | SF | 186 | +0.276 | +2.9 | 53.8 |
-| 4 | J.Burrow | CIN | 189 | +0.267 | +7.7 | 52.9 |
-| 5 | J.Goff | DET | 162 | +0.237 | -0.3 | 50.0 |
-| 6 | D.Maye | NE | 199 | +0.231 | +5.0 | 51.8 |
-| 7 | T.Lawrence | JAX | 176 | +0.230 | +2.5 | 50.0 |
-| 8 | C.Stroud | HOU | 239 | +0.191 | +2.7 | 49.8 |
-| 9 | B.Young | CAR | 193 | +0.174 | +1.9 | 45.1 |
-| 10 | D.Prescott | DAL | 215 | +0.164 | +1.3 | 48.8 |
+| 1 | C.Williams | CHI | 158 | +0.379 | +6.6 | 51.9 |
+| 2 | J.Allen | BUF | 204 | +0.322 | +2.9 | 46.1 |
+| 3 | J.Burrow | CIN | 242 | +0.277 | +9.6 | 55.4 |
+| 4 | B.Purdy | SF | 186 | +0.276 | +2.9 | 53.8 |
+| 5 | D.Maye | NE | 223 | +0.255 | +6.3 | 52.5 |
+| 6 | T.Lawrence | JAX | 185 | +0.255 | +2.7 | 49.7 |
+| 7 | K.Cousins | LV | 231 | +0.205 | +0.5 | 49.8 |
+| 8 | J.Love | GB | 244 | +0.197 | -0.7 | 42.6 |
+| 9 | C.Stroud | HOU | 239 | +0.191 | +2.7 | 49.8 |
+| 10 | D.Prescott | DAL | 241 | +0.190 | +1.8 | 49.8 |
 
-Minimum 105 dropbacks (15 per week played). Full table: [`output/qb_stats_2026.csv`](output/qb_stats_2026.csv).
+Minimum 120 dropbacks (15 per week played). Full table: [`output/qb_stats_2026.csv`](output/qb_stats_2026.csv).
 Ranked bar chart: [`figures/qb_epa_ranking_2026.png`](figures/qb_epa_ranking_2026.png).
 
 ## Methodology
