@@ -50,7 +50,7 @@ than a typical team would in the same situations, orange runs more.
 
 ## Weekly matchup mismatches
 
-![2026 week 8 matchups](figures/matchups_2026_wk08.png)
+![2026 week 9 matchups](figures/matchups_2026_wk09.png)
 
 `scripts/matchups.py` rates every team's **pass offense, rush offense, pass defense and rush defense**
 (EPA/play, using only games before the target week), then scores each offense-vs-defense matchup:
