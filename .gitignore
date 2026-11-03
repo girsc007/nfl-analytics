@@ -6,3 +6,4 @@ venv/
 data/
 .cache/
 .DS_Store
+.claude/scheduled_tasks.lock

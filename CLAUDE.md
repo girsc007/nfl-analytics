@@ -60,6 +60,9 @@ If `python` isn't on PATH in the sandbox, try `bash -l -c "..."`.
 
 ## Workflow notes
 
+- Week-to-week season updates follow the runbook in `.claude/skills/weekly-update/SKILL.md` (`/weekly-update`).
+  `scripts/readme_stats.py` prints every number the README quotes, recomputed from `output/`.
+
 - When README findings quote numbers, recompute them from the CSV after regenerating; don't carry old
   numbers forward.
 - Commit regenerated `figures/`, `output/` and re-executed notebooks together with the code change.

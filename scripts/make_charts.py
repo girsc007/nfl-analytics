@@ -39,6 +39,8 @@ def main() -> None:
     weeks = int(plays["week"].max())
     scope = "all plays" if args.all_plays else "win prob. 10–90%"
     through = "regular season" if weeks >= 18 else f"through week {weeks}"
+    games = plays[plays["week"] == weeks]["game_id"].nunique()
+    print(f"Data runs {through} ({games} games in week {weeks})")
 
     teams = team_epa(plays)
     teams.round(3).to_csv(output / f"team_epa_{args.season}.csv")
