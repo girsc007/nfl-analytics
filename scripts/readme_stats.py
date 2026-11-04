@@ -53,6 +53,31 @@ def pass_vs_rush(split: pd.DataFrame) -> None:
           [["team", "pass_epa", "rush_epa"]].to_string(index=False))
 
 
+def run_direction(direction: pd.DataFrame) -> None:
+    print("\n## Run direction")
+    league = direction[direction["team"] == "NFL"].set_index("lane")
+    print("League by lane:", ", ".join(f"{lane} {row.epa:+.3f} EPA/carry, {row.share:.0%} of carries"
+                                       for lane, row in league.iterrows()))
+    teams = direction[direction["team"] != "NFL"]
+    share = teams.pivot(index="team", columns="lane", values="share")
+    epa = teams.pivot(index="team", columns="lane", values="epa")
+    carries = teams.pivot(index="team", columns="lane", values="carries")
+    for lane in ["Inside", "Outside"]:
+        top = share[lane].sort_values(ascending=False).head(4)
+        print(f"Highest {lane.lower()} share:", ", ".join(f"{t} {v:.0%}" for t, v in top.items()))
+    print(f"r(outside share, EPA on all runs) = {share['Outside'].corr(epa['All runs']):.2f}")
+    print("Best and worst run games (EPA/carry, all runs):")
+    ranked = epa["All runs"].sort_values(ascending=False)
+    for label, part in (("  best ", ranked.head(4)), ("  worst", ranked.tail(3))):
+        print(label, ", ".join(f"{t} {v:+.2f}" for t, v in part.items()))
+    print("Best lane for each of the top 4 (EPA/carry, carries):")
+    for team in ranked.head(4).index:
+        lane = epa.loc[team].drop("All runs").idxmax()
+        print(f"  {team}: {lane} {epa.loc[team, lane]:+.2f} on {carries.loc[team, lane]:.0f}")
+    print("Significant (★) cells:")
+    print(teams[teams["significant"]][["team", "lane", "epa", "carries"]].to_string(index=False))
+
+
 def tendency_by_down(tendency: pd.DataFrame) -> None:
     print("\n## Pass/run tendencies by down (points vs. league average)")
     teams = tendency[tendency["team"] != "NFL"]
@@ -93,6 +118,7 @@ def main() -> None:
     output = ROOT / "output"
     team_efficiency(pd.read_csv(output / f"team_epa_{args.season}.csv"))
     pass_vs_rush(pd.read_csv(output / f"team_pass_rush_epa_{args.season}.csv"))
+    run_direction(pd.read_csv(output / f"run_direction_{args.season}.csv"))
     tendency_by_down(pd.read_csv(output / f"pass_tendency_by_down_{args.season}.csv"))
     quarterbacks(pd.read_csv(output / f"qb_stats_{args.season}.csv"))
 

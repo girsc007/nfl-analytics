@@ -29,6 +29,24 @@ Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axe
 - **Good offenses aren't reliably good at both yet** (r = 0.05 between pass and rush EPA, far weaker than a full
   season typically shows). **KC, SF, BUF and DAL** stand out as above average at both.
 
+## Run direction (2026 season, through week 8)
+
+![2026 run direction](figures/run_direction_2026.png)
+
+Designed runs split by lane, using nflverse's run location and gap with left and right combined:
+**inside** (guard gaps and middle), **off tackle** and **outside** (around the end). The left panel shows
+how each team divides its carries; the right panel shows EPA per carry in each lane, colored against the
+league average for that lane. Most teams have only 20–40 off-tackle or outside carries so far, so these
+cells are noisy; the ★ marks the few differences that are statistically clear.
+
+- **Outside runs work best, but are used least:** the league averaged **+0.01** EPA per carry outside vs.
+  **−0.03** off tackle and **−0.11** inside, yet only 21% of designed runs went outside (55% inside).
+- **Running outside more isn't a shortcut:** teams with a higher outside share were slightly *worse* overall
+  (r = −0.23). **SEA** (39% outside) and **LAC** (35%) ran outside the most and had the two worst run games.
+- **KC** and **PIT** had the best run games (+0.17 per carry), PIT through the middle (+0.35 inside) and KC
+  around the edge (+0.50 outside on 31 carries). **CIN** (73%), **BUF**, **LA** and **SF** (68–69%) were the
+  most inside-heavy.
+
 ## Pass/run tendencies by down (2026 season, through week 8)
 
 ![2026 pass tendency by down](figures/pass_tendency_by_down_2026.png)

@@ -15,8 +15,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from nfl_analytics import (load_pbp, offensive_plays, pass_tendency_by_down,  # noqa: E402
                            plot_epa_ranking, plot_epa_vs_cpoe, plot_pass_tendency_by_down,
-                           plot_pass_vs_rush, plot_team_efficiency, qb_stats, team_epa,
-                           team_pass_rush_epa)
+                           plot_pass_vs_rush, plot_run_direction, plot_team_efficiency, qb_stats,
+                           run_direction, team_epa, team_pass_rush_epa)
 
 
 def main() -> None:
@@ -67,6 +67,15 @@ def main() -> None:
         title=f"{args.season}: who passes or runs more, by down?",
         subtitle=f"Situation-adjusted, vs. league average  ·  {through}  ·  {scope}",
         save_path=figures / f"pass_tendency_by_down_{args.season}.png",
+    )
+
+    direction = run_direction(plays)
+    direction.round(3).to_csv(output / f"run_direction_{args.season}.csv", index=False)
+    plot_run_direction(
+        direction,
+        title=f"{args.season}: where teams run, and how well",
+        subtitle=f"Designed runs by lane  ·  {through}  ·  {scope}",
+        save_path=figures / f"run_direction_{args.season}.png",
     )
 
     min_db = args.min_dropbacks or 15 * weeks

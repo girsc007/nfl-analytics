@@ -55,12 +55,12 @@ It prints `Data runs through week N (G games in week N)`. **Check that the data 
   A missing game (usually Monday night, or a Tuesday makeup game) means nflverse is still processing it.
   Tell the user and ask whether to wait or go ahead.
 
-Outputs: 5 PNGs in `figures/*_SEASON.png` and 4 CSVs in `output/*_SEASON.csv`.
+Outputs: 6 PNGs in `figures/*_SEASON.png` and 5 CSVs in `output/*_SEASON.csv`.
 
 ## 4. Look at every chart
 
-Open each PNG with Read: `team_efficiency`, `team_pass_vs_rush`, `pass_tendency_by_down`, `qb_epa_vs_cpoe`,
-`qb_epa_ranking`. For each one, check:
+Open each PNG with Read: `team_efficiency`, `team_pass_vs_rush`, `run_direction`, `pass_tendency_by_down`,
+`qb_epa_vs_cpoe`, `qb_epa_ranking`. For each one, check:
 
 - The subtitle says `through week N`. The QB charts also say `min. 15×N dropbacks`.
 - No clipped title, subtitle, footnote or axis label, and no logo or point cut off at the plot edge.
@@ -68,7 +68,8 @@ Open each PNG with Read: `team_efficiency`, `team_pass_vs_rush`, `pass_tendency_
   apart and draws a small leader dot back to the true position, so those dots are expected.
 - QB scatter: names are readable and sit next to the right logo. Label placement is random, so if the
   labels collide badly, re-run step 3 once. If they still collide, report it rather than looping.
-- Pass-tendency table: 32 teams plus the NFL avg row, and the color bar is intact.
+- Pass-tendency and run-direction tables: 32 teams plus the NFL avg row, and the color bar is intact.
+  On run direction, the share labels fit inside their bar segments and the lane headers line up.
 
 Fix real layout bugs in `src/nfl_analytics/` only if the user asks. Otherwise list them in the report (step 9).
 
@@ -93,7 +94,7 @@ $PY scripts/readme_stats.py --season SEASON
 This prints every figure the README quotes, in README order, recomputed from the new CSVs. Never carry a
 number over from the old README. Update:
 
-1. **Section headers:** all four `(SEASON season, through week N-1)` become `through week N`.
+1. **Section headers:** all five `(SEASON season, through week N-1)` become `through week N`.
 2. **Team efficiency bullets:**
    - The top 3 by net EPA.
    - The best defenses that come with a below-average offense (high `off_rank`).
@@ -104,12 +105,17 @@ number over from the old README. Update:
    - The teams that ran better than they passed, the std. devs, and the best passing teams.
    - Both r values, and the pass-rate rank of the run-better-than-pass team quoted in the text.
    - The teams above average at both, ranked by pass + rush EPA (name the top 4).
-4. **Tendencies bullets:**
+4. **Run direction bullets:**
+   - The league EPA per carry and share of carries for each lane.
+   - The outside-share vs. run-EPA r and the teams with the highest outside share.
+   - The best run games, each with its best lane (quote the carries when the sample is small), and the
+     most inside-heavy teams.
+5. **Tendencies bullets:**
    - The most run-leaning and most pass-leaning teams on 1st down (including the leader's pass %).
    - The 1st-vs-2nd-down r.
    - The 2nd- and 3rd-down extremes.
    - Check that the "Why re-center?" bullet still matches (about 1 point on 1st down, 3 on 3rd).
-5. **QB table:** paste the 10 printed rows. Change `Minimum X dropbacks` to `15 × N`.
+6. **QB table:** paste the 10 printed rows. Change `Minimum X dropbacks` to `15 × N`.
 
 Rules:
 
@@ -142,7 +148,7 @@ git status --short
 git diff --stat
 ```
 
-Expected changes: 5 season PNGs, 4 season CSVs, 2 notebooks and `README.md`, plus matchup files if
+Expected changes: 6 season PNGs, 5 season CSVs, 2 notebooks and `README.md`, plus matchup files if
 step 7 ran. Anything else needs an explanation.
 
 Commit only if the user asked for one; otherwise ask. Use this message format, with all the files in

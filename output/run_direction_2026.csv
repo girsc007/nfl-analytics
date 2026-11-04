@@ -1,0 +1,133 @@
+team,lane,carries,epa,success,share,epa_vs_nfl,significant
+ARI,Inside,88,-0.234,0.318,0.537,-0.127,False
+ARI,Off tackle,41,-0.045,0.415,0.25,-0.016,False
+ARI,Outside,35,0.216,0.6,0.213,0.202,False
+ATL,Inside,84,-0.185,0.357,0.506,-0.077,False
+ATL,Off tackle,45,0.002,0.467,0.271,0.032,False
+ATL,Outside,37,0.233,0.595,0.223,0.219,False
+BAL,Inside,69,-0.127,0.348,0.454,-0.019,False
+BAL,Off tackle,34,-0.275,0.265,0.224,-0.245,False
+BAL,Outside,49,0.21,0.571,0.322,0.196,False
+BUF,Inside,106,0.023,0.509,0.693,0.131,False
+BUF,Off tackle,29,0.078,0.448,0.19,0.107,False
+BUF,Outside,18,-0.153,0.556,0.118,-0.166,False
+CAR,Inside,52,-0.028,0.423,0.5,0.08,False
+CAR,Off tackle,33,0.13,0.394,0.317,0.16,False
+CAR,Outside,19,-0.221,0.474,0.183,-0.235,False
+CHI,Inside,78,-0.142,0.397,0.433,-0.034,False
+CHI,Off tackle,56,-0.003,0.446,0.311,0.026,False
+CHI,Outside,46,0.123,0.5,0.256,0.109,False
+CIN,Inside,71,-0.136,0.408,0.732,-0.028,False
+CIN,Off tackle,17,-0.107,0.471,0.175,-0.077,False
+CIN,Outside,9,-0.346,0.333,0.093,-0.36,False
+CLE,Inside,65,-0.109,0.385,0.492,-0.002,False
+CLE,Off tackle,33,-0.088,0.364,0.25,-0.058,False
+CLE,Outside,34,-0.02,0.382,0.258,-0.034,False
+DAL,Inside,80,-0.07,0.4,0.567,0.038,False
+DAL,Off tackle,43,0.21,0.558,0.305,0.239,False
+DAL,Outside,18,-0.118,0.444,0.128,-0.132,False
+DEN,Inside,81,0.031,0.395,0.533,0.139,False
+DEN,Off tackle,28,-0.094,0.357,0.184,-0.065,False
+DEN,Outside,43,-0.196,0.349,0.283,-0.21,False
+DET,Inside,63,-0.146,0.476,0.432,-0.038,False
+DET,Off tackle,57,0.139,0.596,0.39,0.169,False
+DET,Outside,26,0.071,0.385,0.178,0.057,False
+GB,Inside,56,-0.404,0.357,0.444,-0.296,False
+GB,Off tackle,44,-0.144,0.341,0.349,-0.115,False
+GB,Outside,26,-0.001,0.462,0.206,-0.015,False
+HOU,Inside,75,-0.247,0.267,0.514,-0.139,False
+HOU,Off tackle,42,-0.083,0.429,0.288,-0.054,False
+HOU,Outside,29,-0.093,0.379,0.199,-0.106,False
+IND,Inside,81,0.028,0.444,0.458,0.136,False
+IND,Off tackle,53,0.056,0.358,0.299,0.085,False
+IND,Outside,43,0.171,0.512,0.243,0.157,False
+JAX,Inside,63,0.007,0.413,0.485,0.114,False
+JAX,Off tackle,33,-0.058,0.424,0.254,-0.029,False
+JAX,Outside,34,-0.007,0.5,0.262,-0.02,False
+KC,Inside,78,0.066,0.474,0.586,0.173,False
+KC,Off tackle,24,0.101,0.458,0.18,0.13,False
+KC,Outside,31,0.496,0.484,0.233,0.482,False
+LA,Inside,94,0.043,0.468,0.686,0.151,False
+LA,Off tackle,20,0.134,0.5,0.146,0.163,False
+LA,Outside,23,0.107,0.435,0.168,0.094,False
+LAC,Inside,71,-0.375,0.324,0.486,-0.267,False
+LAC,Off tackle,24,-0.055,0.208,0.164,-0.025,False
+LAC,Outside,51,-0.244,0.353,0.349,-0.257,False
+LV,Inside,100,-0.15,0.38,0.637,-0.043,False
+LV,Off tackle,30,-0.234,0.267,0.191,-0.205,False
+LV,Outside,27,-0.18,0.37,0.172,-0.194,False
+MIA,Inside,93,-0.086,0.409,0.641,0.022,False
+MIA,Off tackle,23,0.121,0.391,0.159,0.15,False
+MIA,Outside,29,-0.214,0.207,0.2,-0.228,False
+MIN,Inside,77,-0.24,0.312,0.503,-0.132,False
+MIN,Off tackle,39,-0.064,0.41,0.255,-0.035,False
+MIN,Outside,37,-0.133,0.351,0.242,-0.147,False
+NE,Inside,103,-0.172,0.398,0.669,-0.065,False
+NE,Off tackle,30,0.037,0.467,0.195,0.066,False
+NE,Outside,21,-0.023,0.333,0.136,-0.036,False
+NO,Inside,89,-0.108,0.393,0.664,0.0,False
+NO,Off tackle,28,-0.276,0.214,0.209,-0.246,True
+NO,Outside,17,-0.197,0.235,0.127,-0.211,False
+NYG,Inside,97,-0.107,0.381,0.584,0.0,False
+NYG,Off tackle,36,-0.362,0.222,0.217,-0.333,True
+NYG,Outside,33,0.151,0.515,0.199,0.137,False
+NYJ,Inside,96,-0.137,0.427,0.575,-0.029,False
+NYJ,Off tackle,44,-0.017,0.432,0.263,0.012,False
+NYJ,Outside,27,0.291,0.519,0.162,0.277,False
+PHI,Inside,76,-0.168,0.329,0.497,-0.06,False
+PHI,Off tackle,40,-0.065,0.35,0.261,-0.035,False
+PHI,Outside,37,-0.096,0.486,0.242,-0.11,False
+PIT,Inside,85,0.349,0.553,0.586,0.456,True
+PIT,Off tackle,28,-0.237,0.321,0.193,-0.208,False
+PIT,Outside,32,0.048,0.344,0.221,0.035,False
+SEA,Inside,73,-0.408,0.247,0.465,-0.3,True
+SEA,Off tackle,23,-0.003,0.435,0.146,0.026,False
+SEA,Outside,61,-0.293,0.377,0.389,-0.307,False
+SF,Inside,88,0.019,0.534,0.682,0.127,False
+SF,Off tackle,16,0.242,0.625,0.124,0.271,False
+SF,Outside,25,0.005,0.6,0.194,-0.009,False
+TB,Inside,81,-0.099,0.358,0.503,0.008,False
+TB,Off tackle,43,0.272,0.535,0.267,0.301,True
+TB,Outside,37,0.276,0.514,0.23,0.262,False
+TEN,Inside,79,-0.141,0.392,0.541,-0.033,False
+TEN,Off tackle,42,-0.147,0.31,0.288,-0.118,False
+TEN,Outside,25,0.215,0.56,0.171,0.201,False
+WAS,Inside,79,-0.183,0.367,0.585,-0.076,False
+WAS,Off tackle,31,-0.176,0.323,0.23,-0.146,False
+WAS,Outside,25,0.1,0.36,0.185,0.086,False
+ARI,All runs,164,-0.091,0.402,1.0,-0.028,False
+ATL,All runs,166,-0.041,0.44,1.0,0.022,False
+BAL,All runs,152,-0.051,0.401,1.0,0.012,False
+BUF,All runs,153,0.013,0.503,1.0,0.076,False
+CAR,All runs,104,-0.013,0.423,1.0,0.05,False
+CHI,All runs,180,-0.031,0.439,1.0,0.032,False
+CIN,All runs,97,-0.15,0.412,1.0,-0.087,False
+CLE,All runs,132,-0.081,0.379,1.0,-0.018,False
+DAL,All runs,141,0.009,0.454,1.0,0.073,False
+DEN,All runs,152,-0.056,0.375,1.0,0.007,False
+DET,All runs,146,0.004,0.507,1.0,0.067,False
+GB,All runs,126,-0.23,0.373,1.0,-0.167,False
+HOU,All runs,146,-0.169,0.336,1.0,-0.106,False
+IND,All runs,177,0.071,0.435,1.0,0.134,True
+JAX,All runs,130,-0.013,0.438,1.0,0.05,False
+KC,All runs,133,0.172,0.474,1.0,0.236,True
+LA,All runs,137,0.067,0.467,1.0,0.13,False
+LAC,All runs,146,-0.276,0.315,1.0,-0.213,True
+LV,All runs,157,-0.171,0.357,1.0,-0.108,False
+MIA,All runs,145,-0.078,0.366,1.0,-0.015,False
+MIN,All runs,153,-0.169,0.346,1.0,-0.106,False
+NE,All runs,154,-0.111,0.403,1.0,-0.048,False
+NO,All runs,134,-0.154,0.336,1.0,-0.091,False
+NYG,All runs,166,-0.111,0.373,1.0,-0.048,False
+NYJ,All runs,167,-0.036,0.443,1.0,0.027,False
+PHI,All runs,153,-0.123,0.373,1.0,-0.06,False
+PIT,All runs,145,0.169,0.462,1.0,0.232,True
+SEA,All runs,157,-0.304,0.325,1.0,-0.241,True
+SF,All runs,129,0.044,0.558,1.0,0.107,False
+TB,All runs,161,0.086,0.441,1.0,0.149,True
+TEN,All runs,146,-0.082,0.397,1.0,-0.019,False
+WAS,All runs,135,-0.129,0.356,1.0,-0.066,False
+NFL,Inside,2571,-0.108,0.398,0.549,0.0,False
+NFL,Off tackle,1109,-0.029,0.403,0.237,0.0,False
+NFL,Outside,1004,0.014,0.445,0.214,0.0,False
+NFL,All runs,4684,-0.063,0.409,1.0,0.0,False
