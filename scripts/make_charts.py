@@ -16,7 +16,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from nfl_analytics import (load_pbp, offensive_plays, pass_tendency_by_down,  # noqa: E402
                            plot_epa_ranking, plot_epa_vs_cpoe, plot_pass_tendency_by_down,
                            plot_pass_vs_rush, plot_run_direction, plot_team_efficiency, qb_stats,
-                           run_direction, team_epa, team_pass_rush_epa)
+                           run_direction, team_epa, team_pass_rush_epa, write_latest)
 
 
 def main() -> None:
@@ -42,8 +42,12 @@ def main() -> None:
     games = plays[plays["week"] == weeks]["game_id"].nunique()
     print(f"Data runs {through} ({games} games in week {weeks})")
 
+    def save(df, name, index=True):
+        df.round(3).to_csv(output / f"{name}_{args.season}.csv", index=index)
+        write_latest(df, name, output, season=args.season, week=weeks, data_through_week=weeks)
+
     teams = team_epa(plays)
-    teams.round(3).to_csv(output / f"team_epa_{args.season}.csv")
+    save(teams, "team_epa")
     plot_team_efficiency(
         teams,
         title=f"{args.season} NFL team efficiency",
@@ -52,7 +56,7 @@ def main() -> None:
     )
 
     split = team_pass_rush_epa(plays)
-    split.round(3).to_csv(output / f"team_pass_rush_epa_{args.season}.csv")
+    save(split, "team_pass_rush_epa")
     plot_pass_vs_rush(
         split,
         title=f"{args.season} offense: passing vs. rushing efficiency",
@@ -61,7 +65,7 @@ def main() -> None:
     )
 
     tendency = pass_tendency_by_down(plays)
-    tendency.round(3).to_csv(output / f"pass_tendency_by_down_{args.season}.csv", index=False)
+    save(tendency, "pass_tendency_by_down", index=False)
     plot_pass_tendency_by_down(
         tendency,
         title=f"{args.season}: who passes or runs more, by down?",
@@ -70,7 +74,7 @@ def main() -> None:
     )
 
     direction = run_direction(plays)
-    direction.round(3).to_csv(output / f"run_direction_{args.season}.csv", index=False)
+    save(direction, "run_direction", index=False)
     plot_run_direction(
         direction,
         title=f"{args.season}: where teams run, and how well",
@@ -80,7 +84,7 @@ def main() -> None:
 
     min_db = args.min_dropbacks or 15 * weeks
     qbs = qb_stats(plays, min_dropbacks=min_db)
-    qbs.round(3).to_csv(output / f"qb_stats_{args.season}.csv")
+    save(qbs, "qb_stats")
     qb_subtitle = f"{through}  ·  {scope}  ·  min. {min_db} dropbacks"
     plot_epa_vs_cpoe(
         qbs,
@@ -99,7 +103,7 @@ def main() -> None:
     print(teams[["off_epa", "def_epa", "net_epa"]].head().round(3).to_string())
     print("\nTop 5 QBs by EPA/dropback:")
     print(qbs[["name", "team", "dropbacks", "epa_per_db", "cpoe"]].head().round(3).to_string())
-    print(f"\nCharts saved to {figures}, tables to {output}")
+    print(f"\nCharts saved to {figures}, tables to {output} (fixed-name copies in {output / 'latest'})")
 
 
 if __name__ == "__main__":

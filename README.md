@@ -3,7 +3,7 @@
 Exploring NFL team and quarterback efficiency with play-by-play data from
 [nflverse](https://github.com/nflverse), using Python, pandas and matplotlib.
 
-## Team efficiency (2026 season, through week 8)
+## Team efficiency (2026 season, through week 9)
 
 ![2026 team efficiency](figures/team_efficiency_2026.png)
 
@@ -12,24 +12,24 @@ inverted so up is good). Teams in the top-right are good on both sides of the ba
 
 - **SF**, **CHI** and **JAX** had the best combination of offense and defense.
 - **MIN** and **TB** had the best defenses, despite struggling offenses.
-- **DAL** had a top-four offense undone by the league's second-worst defense; **MIA** allowed the most EPA/play.
+- **DAL** had a top-four offense undone by the league's fifth-worst defense; **MIA** allowed the most EPA/play.
 
-## Passing vs. rushing (2026 season, through week 8)
+## Passing vs. rushing (2026 season, through week 9)
 
 ![2026 pass vs. rush EPA](figures/team_pass_vs_rush_2026.png)
 
 Offensive EPA/play split into dropbacks (x) and designed runs (y), with both axes on the same scale.
 
-- **Passing is more efficient:** the league averaged **+0.080** EPA per dropback vs. **−0.093** per designed run.
+- **Passing is more efficient:** the league averaged **+0.076** EPA per dropback vs. **−0.093** per designed run.
   Only **IND, PIT, ATL and TB** ran more efficiently than they passed.
 - **Passing separates teams:** pass EPA varies more between teams than rush EPA
-  (std. dev. 0.14 vs. 0.11). **BUF**, **CHI**, **CIN** and **LV** led a tight group of the best passing offenses.
-- **Run-heavy ≠ run-efficient:** pass rate has only a weak correlation with pass efficiency so far (r = 0.28).
-  PIT ran better than it passed yet had the 5th-highest pass rate.
+  (std. dev. 0.15 vs. 0.11). **CIN** and **SF** had the best passing offenses, ahead of **GB**, **JAX** and **CHI**.
+- **Run-heavy ≠ run-efficient:** pass rate has only a weak correlation with pass efficiency so far (r = 0.31).
+  PIT ran better than it passed yet had the 4th-highest pass rate.
 - **Good offenses aren't reliably good at both yet** (r = 0.05 between pass and rush EPA, far weaker than a full
   season typically shows). **KC, SF, BUF and DAL** stand out as above average at both.
 
-## Run direction (2026 season, through week 8)
+## Run direction (2026 season, through week 9)
 
 ![2026 run direction](figures/run_direction_2026.png)
 
@@ -40,14 +40,14 @@ league average for that lane. Most teams have only 20–40 off-tackle or outside
 cells are noisy; the ★ marks the few differences that are statistically clear.
 
 - **Outside runs work best, but are used least:** the league averaged **+0.01** EPA per carry outside vs.
-  **−0.03** off tackle and **−0.11** inside, yet only 21% of designed runs went outside (55% inside).
+  **−0.03** off tackle and **−0.11** inside, yet only 22% of designed runs went outside (55% inside).
 - **Running outside more isn't a shortcut:** teams with a higher outside share were slightly *worse* overall
-  (r = −0.23). **SEA** (39% outside) and **LAC** (35%) ran outside the most and had the two worst run games.
-- **KC** and **PIT** had the best run games (+0.17 per carry), PIT through the middle (+0.35 inside) and KC
-  around the edge (+0.50 outside on 31 carries). **CIN** (73%), **BUF**, **LA** and **SF** (68–69%) were the
-  most inside-heavy.
+  (r = −0.26). **LAC** (38% outside) and **SEA** (37%) ran outside the most and had the two worst run games.
+- **PIT** (+0.17 per carry) and **KC** (+0.15) had the best run games, PIT through the middle (+0.35 inside)
+  and KC around the edge (+0.43 outside on 35 carries). **CIN** (71%), **BUF**, **LA** and **NO** (69% each)
+  were the most inside-heavy.
 
-## Pass/run tendencies by down (2026 season, through week 8)
+## Pass/run tendencies by down (2026 season, through week 9)
 
 ![2026 pass tendency by down](figures/pass_tendency_by_down_2026.png)
 
@@ -57,18 +57,18 @@ distance, field position, score and time, so it reflects play-calling rather tha
 re-centered so the league average is 0 on every down. The color uses the same measure: blue passes more
 than a typical team would in the same situations, orange runs more.
 
-- **The most run-leaning 1st-down offenses** were LAC (38% pass, −11.9 points vs. league average),
-  BUF (−9.2) and MIA (−8.8). The most pass-leaning were CIN (+15.3), CAR (+11.6), LV (+7.1) and SF (+6.7).
-- **Tendencies change by down.** A team's 1st-down tendency barely predicts its 2nd-down tendency (r = 0.30).
-- **LV, TB and NYG** were the most run-heavy on 2nd down (about −10 points). **MIA** was the most
-  run-heavy on 3rd down by far (−11.4), while **MIN** (+7.9) and **KC** (+6.1) were the most pass-heavy.
+- **The most run-leaning 1st-down offenses** were LAC (38% pass, −12.1 points vs. league average),
+  TB (−9.9) and BUF (−9.3). The most pass-leaning were CIN (+15.0), CAR (+10.1), LV (+7.8) and SF (+5.9).
+- **Tendencies change by down.** A team's 1st-down tendency barely predicts its 2nd-down tendency (r = 0.31).
+- **LV, TB and NYG** were the most run-heavy on 2nd down (−9 to −11 points). **MIA** was the most
+  run-heavy on 3rd down by far (−11.7), while **MIN** and **KC** (+7.8 each) were the most pass-heavy.
 - **Why re-center?** `xpass` is fit on all plays, including garbage time. In the competitive situations
   analyzed here, the whole league runs slightly more than it predicts (about 1 point on 1st down and 3 on
   3rd), so comparing to the league average is fairer than comparing to zero.
 
 ## Weekly matchup mismatches
 
-![2026 week 9 matchups](figures/matchups_2026_wk09.png)
+![2026 week 10 matchups](figures/matchups_2026_wk10.png)
 
 `scripts/matchups.py` rates every team's **pass offense, rush offense, pass defense and rush defense**
 (EPA/play, using only games before the target week), then scores each offense-vs-defense matchup:
@@ -106,25 +106,48 @@ and shrinking them cut prediction error by about 22%. Opponent adjustment adds a
 top, mainly for rushing, though one season is not enough to be confident about a gain that size.
 Passing mismatches remain far more predictive than rushing ones.
 
-## Quarterbacks (2026 season, through week 8)
+## Quarterbacks (2026 season, through week 9)
 
 ![2026 QB accuracy vs. production](figures/qb_epa_vs_cpoe_2026.png)
 
 | # | QB | Team | Dropbacks | EPA/db | CPOE | Success % |
 |---|---|---|---:|---:|---:|---:|
-| 1 | C.Williams | CHI | 158 | +0.379 | +6.6 | 51.9 |
-| 2 | J.Allen | BUF | 204 | +0.322 | +2.9 | 46.1 |
-| 3 | J.Burrow | CIN | 242 | +0.277 | +9.6 | 55.4 |
-| 4 | B.Purdy | SF | 186 | +0.276 | +2.9 | 53.8 |
-| 5 | D.Maye | NE | 223 | +0.255 | +6.3 | 52.5 |
-| 6 | T.Lawrence | JAX | 185 | +0.255 | +2.7 | 49.7 |
-| 7 | K.Cousins | LV | 231 | +0.205 | +0.5 | 49.8 |
-| 8 | J.Love | GB | 244 | +0.197 | -0.7 | 42.6 |
-| 9 | C.Stroud | HOU | 239 | +0.191 | +2.7 | 49.8 |
-| 10 | D.Prescott | DAL | 241 | +0.190 | +1.8 | 49.8 |
+| 1 | C.Williams | CHI | 190 | +0.327 | +5.5 | 52.1 |
+| 2 | J.Burrow | CIN | 270 | +0.322 | +10.3 | 56.3 |
+| 3 | B.Purdy | SF | 207 | +0.314 | +4.5 | 54.6 |
+| 4 | T.Lawrence | JAX | 201 | +0.290 | +2.0 | 50.2 |
+| 5 | J.Allen | BUF | 238 | +0.269 | +2.8 | 46.6 |
+| 6 | J.Love | GB | 269 | +0.250 | +1.4 | 43.9 |
+| 7 | C.Stroud | HOU | 264 | +0.213 | +2.4 | 50.0 |
+| 8 | D.Prescott | DAL | 279 | +0.213 | +1.4 | 48.4 |
+| 9 | D.Maye | NE | 249 | +0.206 | +5.6 | 51.4 |
+| 10 | K.Cousins | LV | 244 | +0.179 | +0.8 | 49.2 |
 
-Minimum 120 dropbacks (15 per week played). Full table: [`output/qb_stats_2026.csv`](output/qb_stats_2026.csv).
+Minimum 135 dropbacks (15 per week played). Full table: [`output/qb_stats_2026.csv`](output/qb_stats_2026.csv).
 Ranked bar chart: [`figures/qb_epa_ranking_2026.png`](figures/qb_epa_ranking_2026.png).
+
+## Using the data (Power BI, Excel, etc.)
+
+Every table is also written to `output/latest/<name>.csv` under a name that never changes, so a dashboard
+can point at the raw GitHub URL and pick up each week's update on refresh. Each file starts with `season`,
+`week` and `data_through_week` columns, and `team` is a regular column. For the season tables, `week` is
+the latest completed week; for `matchups` and `unit_ratings` it is the previewed week, and
+`data_through_week` is the last week the ratings use.
+
+| Table | URL |
+|---|---|
+| team_epa | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/team_epa.csv |
+| team_pass_rush_epa | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/team_pass_rush_epa.csv |
+| run_direction | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/run_direction.csv |
+| pass_tendency_by_down | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/pass_tendency_by_down.csv |
+| qb_stats | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/qb_stats.csv |
+| matchups | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/matchups.csv |
+| unit_ratings | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/unit_ratings.csv |
+
+In Power BI: **Get Data → Web**, paste a URL, choose **Anonymous**. `run_direction` and
+`pass_tendency_by_down` are long tables (one row per team and lane or down) and include league-average rows with
+`team` = `NFL`; filter them out before aggregating. The dated files in `output/` (for example `team_epa_2026.csv`) are the
+same data without the extra columns.
 
 ## Methodology
 
@@ -145,6 +168,7 @@ src/nfl_analytics/
   team_efficiency.py  team EPA, pass vs. rush split, and charts
   qb_stats.py         QB stats table and charts
   matchups.py         pass/rush unit ratings and matchup edges
+  export.py           fixed-name copies of every table in output/latest/
   logos.py            team logos as chart markers (downloaded once, cached)
   style.py            shared chart styling
 scripts/make_charts.py  regenerate every season chart and table
@@ -153,7 +177,7 @@ notebooks/
   01_team_efficiency.ipynb
   02_qb_stats.ipynb
 figures/   saved charts
-output/    CSV tables
+output/    CSV tables (output/latest/: fixed names for dashboards)
 ```
 
 ## Getting started

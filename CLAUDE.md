@@ -32,7 +32,9 @@ If `python` isn't on PATH in the sandbox, try `bash -l -c "..."`.
   `sys.path` (`sys.path.insert(0, ...)`). New public functions must be exported from `__init__.py`.
 - Every analysis pairs a **compute function returning a DataFrame** with a **`plot_*` function** that
   takes that DataFrame plus `title`, `subtitle` and optional `save_path`. `scripts/make_charts.py` calls
-  each pair, writes `output/<name>_<season>.csv` and `figures/<name>_<season>.png`.
+  each pair, writes `output/<name>_<season>.csv` and `figures/<name>_<season>.png`, plus a fixed-name copy
+  `output/latest/<name>.csv` via `export.write_latest` (adds `season`, `week`, `data_through_week` columns).
+  Power BI dashboards read the `latest/` files by raw GitHub URL, so don't rename them or their columns.
 - `data.offensive_plays()` is the shared filter applied before nearly everything: pass or run plays with
   EPA, regular season, and offense win probability 10–90% (garbage time removed).
 - nflverse conventions the code relies on: `pass == 1` includes scrambles and sacks, so "rush" means

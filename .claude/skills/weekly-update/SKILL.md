@@ -55,7 +55,9 @@ It prints `Data runs through week N (G games in week N)`. **Check that the data 
   A missing game (usually Monday night, or a Tuesday makeup game) means nflverse is still processing it.
   Tell the user and ask whether to wait or go ahead.
 
-Outputs: 6 PNGs in `figures/*_SEASON.png` and 5 CSVs in `output/*_SEASON.csv`.
+Outputs: 6 PNGs in `figures/*_SEASON.png`, 5 CSVs in `output/*_SEASON.csv`, and the same 5 tables under
+fixed names in `output/latest/` (with `season`/`week`/`data_through_week` columns, for Power BI). Check that
+`week` in `output/latest/team_epa.csv` is N.
 
 ## 4. Look at every chart
 
@@ -148,8 +150,8 @@ git status --short
 git diff --stat
 ```
 
-Expected changes: 6 season PNGs, 5 season CSVs, 2 notebooks and `README.md`, plus matchup files if
-step 7 ran. Anything else needs an explanation.
+Expected changes: 6 season PNGs, 5 season CSVs, 5 `output/latest/` CSVs, 2 notebooks and `README.md`, plus
+matchup files (including `output/latest/matchups.csv` and `unit_ratings.csv`) if step 7 ran. Anything else needs an explanation.
 
 Commit only if the user asked for one; otherwise ask. Use this message format, with all the files in
 one commit:

@@ -27,7 +27,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 import nflreadpy as nfl  # noqa: E402
 
-from nfl_analytics import load_pbp, offensive_plays  # noqa: E402
+from nfl_analytics import load_pbp, offensive_plays, write_latest  # noqa: E402
 from nfl_analytics.matchups import (matchup_edges, plot_matchup_edges,  # noqa: E402
                                     unit_ratings, week_schedule)
 
@@ -109,6 +109,9 @@ def main() -> None:
     tag = f"{args.season}_wk{week:02d}"
     edges.round(3).to_csv(output / f"matchups_{tag}.csv", index=False)
     ratings.round(3).to_csv(output / f"unit_ratings_{tag}.csv")
+    for df, name in [(edges, "matchups"), (ratings, "unit_ratings")]:
+        write_latest(df, name, output, season=args.season, week=week,
+                     data_through_week=weeks_used)
     plot_matchup_edges(
         edges, top=args.top,
         title=f"{args.season} week {week}: biggest pass and rush mismatches",
