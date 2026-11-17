@@ -1,13 +1,14 @@
 ---
 name: weekly-update
-description: Runbook for the week-to-week season update - regenerate the season charts, CSVs and notebooks with the latest completed week, refresh every number the README quotes, check the weekly matchup preview, and commit. Use when the user asks to update the graphs/charts/README "with week N", "with the new data", "for this week", or similar.
+description: Runbook for the week-to-week season update - regenerate the season charts, CSVs and notebooks with the latest completed week, refresh every number the README quotes, regenerate the next week's matchup preview, and commit. Use when the user asks to update the graphs/charts/README "with week N", "with the new data", "for this week", or similar.
 ---
 
 # Weekly season update
 
 Follow these steps in order. Each step says what "done" looks like; don't move on until it is.
-The update covers the **season charts** (`make_charts.py`). The **matchup preview** is normally
-published by CI every Tuesday (step 7); only regenerate it when the user asks or CI missed a week.
+The update covers the **season charts** (`make_charts.py`) and the **matchup preview** for week N+1
+(`matchups.py`, step 7). A GitHub Action also publishes the preview on Tuesdays, but it often runs hours
+late, so don't wait for it: if the preview isn't already week N+1, regenerate it here.
 
 Throughout, `N` is the latest completed week and `SEASON` is the current season (default 2026).
 
@@ -131,17 +132,27 @@ output.
 
 ## 7. Weekly matchup preview
 
-Check `figures/matchups_SEASON_wk*.png`. After a Tuesday CI run it should be week N+1.
+The preview must be for **week N+1**, rated on weeks 1–N. A chart named `wkN` is last week's
+preview: it shows the games just played, rated on weeks 1–(N−1), so it's stale even though nothing
+about it is mislabeled.
 
-- If CI already pushed week N+1 (you pulled it in step 1), there's nothing to do.
-- If it's stale and the user asked for matchups, or confirms they want them, run:
+Check `figures/matchups_SEASON_wk*.png`:
+
+- If it's already week N+1 (CI pushed it and you pulled it in step 1), check that its subtitle says
+  `weeks 1–N`, and that's all.
+- Otherwise, regenerate it. Don't ask first, and don't wait for CI:
 
   ```bash
   $PY scripts/matchups.py --season SEASON              # next week with unplayed games
   $PY scripts/sync_readme_matchups.py                  # repoints README, deletes last week's files
   ```
 
-  Then Read the new `figures/matchups_*.png` and check it the same way as step 4.
+  Check that it says `week N+1` and `ratings from SEASON weeks 1–N`, with one row per scheduled game in
+  the "most lopsided" printout. Then Read `figures/matchups_SEASON_wkN+1.png` and check it the same way as
+  step 4. Check that `week` in `output/latest/matchups.csv` is N+1 and `data_through_week` is N.
+
+When CI runs later, it regenerates the same week from the same data, so it commits nothing or only a
+byte-level PNG change. Pull before your next commit.
 
 ## 8. Review and commit
 
@@ -150,8 +161,10 @@ git status --short
 git diff --stat
 ```
 
-Expected changes: 6 season PNGs, 5 season CSVs, 5 `output/latest/` CSVs, 2 notebooks and `README.md`, plus
-matchup files (including `output/latest/matchups.csv` and `unit_ratings.csv`) if step 7 ran. Anything else needs an explanation.
+Expected changes: 6 season PNGs, 5 season CSVs, 5 `output/latest/` CSVs, 2 notebooks and `README.md`.
+If step 7 regenerated the preview, also expect: the new `figures/matchups_SEASON_wkN+1.png`,
+`output/matchups_*` and `output/unit_ratings_*` CSVs, the deleted week-N versions of those files, and
+`output/latest/matchups.csv` and `unit_ratings.csv`. Anything else needs an explanation.
 
 Commit only if the user asked for one; otherwise ask. Use this message format, with all the files in
 one commit:
@@ -159,6 +172,8 @@ one commit:
 ```
 Update season charts, tables, notebooks and README through week N
 ```
+
+Add `; week N+1 matchups` to the end when step 7 regenerated the preview.
 
 Push with `git push origin main` only when the user asks (or has asked for "commit and push").
 
@@ -170,5 +185,5 @@ Keep it short:
 - **What changed:** which files were regenerated and the headline movement in the README, such as new
   top teams, QBs entering or leaving the top 10, and claims that flipped.
 - **Problems:** any chart issues from step 4 that are still there.
-- **Matchups:** their status (current from CI, regenerated, or stale).
+- **Matchups:** week N+1, either already pushed by CI or regenerated in step 7.
 - **Git:** committed/pushed or not.
