@@ -55,22 +55,23 @@ It prints `Data runs through week N (G games in week N)`. **Check that the data 
   A missing game (usually Monday night, or a Tuesday makeup game) means nflverse is still processing it.
   Tell the user and ask whether to wait or go ahead.
 
-Outputs: 6 PNGs in `figures/*_SEASON.png`, 5 CSVs in `output/*_SEASON.csv`, and the same 5 tables under
+Outputs: 8 PNGs in `figures/*_SEASON.png`, 7 CSVs in `output/*_SEASON.csv`, and the same 7 tables under
 fixed names in `output/latest/` (with `season`/`week`/`data_through_week` columns, for Power BI). Check that
 `week` in `output/latest/team_epa.csv` is N.
 
 ## 4. Look at every chart
 
 Open each PNG with Read: `team_efficiency`, `team_pass_vs_rush`, `run_direction`, `pass_tendency_by_down`,
-`qb_epa_vs_cpoe`, `qb_epa_ranking`. For each one, check:
+`qb_epa_vs_cpoe`, `qb_epa_ranking`, `qb_third_down`, `qb_red_zone`. For each one, check:
 
 - The subtitle says `through week N`. The QB charts also say `min. 15×N dropbacks`.
 - No clipped title, subtitle, footnote or axis label, and no logo or point cut off at the plot edge.
 - Logos don't cover each other or the quadrant labels. The team efficiency chart and the QB scatter nudge
   overlapping logos apart and draw a small leader dot back to the true position, so those dots are expected.
-- QB scatter: names are readable and each clearly belongs to one logo, either beside it or joined by a thin
+- QB scatters (`qb_epa_vs_cpoe`, `qb_red_zone`): names are readable and each clearly belongs to one logo, either beside it or joined by a thin
   leader line. Placement is deterministic, so re-running won't change it. If a name is ambiguous or
   covered, report it (the placement rules are in `qb_stats._place_labels`).
+- 3rd-down ranking: each value label sits past the end of its whisker and none is clipped at the edge.
 - Pass-tendency and run-direction tables: 32 teams plus the NFL avg row, and the color bar is intact.
   On run direction, the share labels fit inside their bar segments and the lane headers line up.
 
@@ -119,6 +120,13 @@ number over from the old README. Update:
    - The 2nd- and 3rd-down extremes.
    - Check that the "Why re-center?" bullet still matches (about 1 point on 1st down, 3 on 3rd).
 6. **QB table:** paste the 10 printed rows. Change `Minimum X dropbacks` to `15 × N`.
+7. **3rd down and the red zone bullets** (the `### 3rd down and the red zone` subsection):
+   - The top 4 and bottom 4 by 3rd-down conversion over expected, with the leader's raw rate.
+   - The 3rd-down dropback range, the SE range, and who is beyond 2 SE of zero (it's "mostly noise"
+     only while few QBs are).
+   - The league red-zone and outside EPA per dropback, and the QBs above average in both zones.
+   - The biggest red-zone drop-off (with its red-zone TD count = TD rate × dropbacks) and edge.
+   - The red-zone dropback range, both std. devs and the r value.
 
 Rules:
 
@@ -158,7 +166,7 @@ git status --short
 git diff --stat
 ```
 
-Expected changes: 6 season PNGs, 5 season CSVs, 5 `output/latest/` CSVs, 2 notebooks and `README.md`.
+Expected changes: 8 season PNGs, 7 season CSVs, 7 `output/latest/` CSVs, 2 notebooks and `README.md`.
 If step 7 regenerated the preview, also expect: the new `figures/matchups_SEASON_wkN+1.png`,
 `output/matchups_*` and `output/unit_ratings_*` CSVs, the deleted week-N versions of those files, and
 `output/latest/matchups.csv` and `unit_ratings.csv`. Anything else needs an explanation.

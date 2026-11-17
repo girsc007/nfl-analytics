@@ -109,6 +109,39 @@ def quarterbacks(qbs: pd.DataFrame) -> None:
     print(f"Qualified QBs: {len(qbs)} (fewest dropbacks: {qbs['dropbacks'].min()})")
 
 
+def situational(third: pd.DataFrame, red_zone: pd.DataFrame) -> None:
+    print("\n## 3rd down and the red zone")
+    third = third.sort_values("conversion_over_expected", ascending=False)
+    fmt = lambda r: (f"{r.name} {r.conversion_over_expected * 100:+.1f} "
+                     f"({r.conversion_rate:.0%} of {r.third_down_dropbacks}, SE {r.se * 100:.1f})")
+    print("3rd-down conversion over expected, points (raw rate of n dropbacks):")
+    print("  best: ", ", ".join(fmt(r) for r in third.head(4).itertuples()))
+    print("  worst:", ", ".join(fmt(r) for r in third.tail(4)[::-1].itertuples()))
+    z = third["conversion_over_expected"] / third["se"]
+    print(f"Beyond 2 SE of zero: above {', '.join(third.loc[z > 2, 'name']) or 'none'}; "
+          f"below {', '.join(third.loc[z < -2, 'name']) or 'none'}")
+    print(f"3rd-down dropbacks per QB: {third['third_down_dropbacks'].min()}–"
+          f"{third['third_down_dropbacks'].max()}")
+    print(f"Standard error range: {third['se'].min() * 100:.1f}–{third['se'].max() * 100:.1f} points")
+
+    rz = red_zone.sort_values("rz_edge", ascending=False)
+    league_rz = (rz["rz_epa_per_db"] - rz["rz_vs_avg"]).iloc[0]
+    league_field = (rz["field_epa_per_db"] - rz["field_vs_avg"]).iloc[0]
+    print(f"League EPA/dropback: red zone {league_rz:+.3f}, outside it {league_field:+.3f}")
+    cols = ["name", "team", "rz_dropbacks", "rz_td_rate", "rz_vs_avg", "field_vs_avg", "rz_edge"]
+    print("Biggest red-zone edge (RZ vs. avg minus field vs. avg):")
+    print(rz.head(4)[cols].round(3).to_string(index=False))
+    print("Biggest red-zone drop-off:")
+    print(rz.tail(4)[::-1][cols].round(3).to_string(index=False))
+    both = rz[(rz["rz_vs_avg"] > 0) & (rz["field_vs_avg"] > 0)]
+    print("Above average in both zones (by RZ vs. avg):",
+          ", ".join(f"{r.name} {r.rz_vs_avg:+.2f}/{r.field_vs_avg:+.2f}"
+                    for r in both.sort_values("rz_vs_avg", ascending=False).itertuples()))
+    print(f"r(field vs. avg, RZ vs. avg) = {rz['field_vs_avg'].corr(rz['rz_vs_avg']):.2f}")
+    print(f"Std. dev. between QBs: RZ {rz['rz_vs_avg'].std():.2f}, field {rz['field_vs_avg'].std():.2f}")
+    print(f"Red-zone dropbacks per QB: {rz['rz_dropbacks'].min()}–{rz['rz_dropbacks'].max()}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -121,6 +154,8 @@ def main() -> None:
     run_direction(pd.read_csv(output / f"run_direction_{args.season}.csv"))
     tendency_by_down(pd.read_csv(output / f"pass_tendency_by_down_{args.season}.csv"))
     quarterbacks(pd.read_csv(output / f"qb_stats_{args.season}.csv"))
+    situational(pd.read_csv(output / f"qb_third_down_{args.season}.csv"),
+                pd.read_csv(output / f"qb_red_zone_{args.season}.csv"))
 
 
 if __name__ == "__main__":

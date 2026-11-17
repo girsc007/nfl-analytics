@@ -142,6 +142,33 @@ def _place_labels(ax, names, anchors, obstacles, gap: float = 3,
             ax.plot(line[:, 0], line[:, 1], color=TEXT_MUTED, lw=0.5, zorder=4)
 
 
+def _label_qb_points(ax, qbs: pd.DataFrame, x: str, y: str, boxes: list,
+                     captions: list) -> None:
+    """Spread overlapping logos and place every QB's name around its marker.
+
+    Call after the final layout (tight_layout), since both steps work in pixels.
+    `boxes` are the logo artists from `plot_logos` (None for a QB drawn as a dot),
+    `captions` any corner texts the names must avoid.
+    """
+    fig = ax.figure
+    # Pull apart logos that overlap (leader dot back to the true point).
+    boxes = spread_logos(ax, boxes, color=TEXT_MUTED)
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    dot = 9  # pixels: stand-in extent for a QB drawn as a dot (no logo)
+    anchors = []
+    for box, xi, yi in zip(boxes, qbs[x], qbs[y]):
+        if box is not None:
+            anchors.append(box.get_window_extent(renderer))
+        else:
+            px, py = ax.transData.transform((xi, yi))
+            anchors.append(Bbox.from_extents(px - dot, py - dot, px + dot, py + dot))
+    true_points = [Bbox.from_extents(px - 3, py - 3, px + 3, py + 3)
+                   for px, py in ax.transData.transform(qbs[[x, y]].values)]
+    obstacles = anchors + true_points + [c.get_window_extent(renderer) for c in captions]
+    _place_labels(ax, list(qbs["name"]), anchors, obstacles)
+
+
 def plot_epa_vs_cpoe(qbs: pd.DataFrame, title: str, subtitle: str,
                      save_path: str | None = None):
     """Scatter of CPOE (accuracy, x) vs. EPA per dropback (production, y)."""
@@ -171,23 +198,7 @@ def plot_epa_vs_cpoe(qbs: pd.DataFrame, title: str, subtitle: str,
     add_footnote(fig, "Data: nflverse via nflreadpy  ·  Dashed lines = average of qualified QBs")
     fig.tight_layout(rect=(0, 0.03, 1, 1))
 
-    # With the layout final, pull apart logos that overlap (leader dot back to the
-    # true point), then place every name around its logo.
-    boxes = spread_logos(ax, boxes, color=TEXT_MUTED)
-    fig.canvas.draw()
-    renderer = fig.canvas.get_renderer()
-    dot = 9  # pixels: stand-in extent for a QB drawn as a dot (no logo)
-    anchors = []
-    for box, x, y in zip(boxes, qbs["cpoe"], qbs["epa_per_db"]):
-        if box is not None:
-            anchors.append(box.get_window_extent(renderer))
-        else:
-            px, py = ax.transData.transform((x, y))
-            anchors.append(Bbox.from_extents(px - dot, py - dot, px + dot, py + dot))
-    true_points = [Bbox.from_extents(px - 3, py - 3, px + 3, py + 3)
-                   for px, py in ax.transData.transform(qbs[["cpoe", "epa_per_db"]].values)]
-    obstacles = anchors + true_points + [c.get_window_extent(renderer) for c in captions]
-    _place_labels(ax, list(qbs["name"]), anchors, obstacles)
+    _label_qb_points(ax, qbs, "cpoe", "epa_per_db", boxes, captions)
 
     if save_path:
         fig.savefig(save_path, dpi=150)
@@ -228,6 +239,171 @@ def plot_epa_ranking(qbs: pd.DataFrame, title: str, subtitle: str,
     add_subtitle(ax, subtitle)
     add_footnote(fig, "Data: nflverse via nflreadpy")
     fig.tight_layout(rect=(0, 0.02, 1, 1))
+
+    if save_path:
+        fig.savefig(save_path, dpi=150)
+    return fig, ax
+
+
+# 3rd-down distance buckets for expected conversion: (label, low, high) yards to go.
+_DISTANCE_BUCKETS = [(1, 1), (2, 2), (3, 3), (4, 5), (6, 7), (8, 10), (11, 15), (16, 99)]
+
+
+def third_down_conversion(plays: pd.DataFrame, qbs: pd.DataFrame) -> pd.DataFrame:
+    """3rd-down conversion rate over expected for the QBs in `qbs` (from `qb_stats`).
+
+    A conversion is a dropback where the QB's own pass or scramble gained the
+    first down (touchdowns included); first downs by defensive penalty don't
+    count. Expected conversion is the league rate on all 3rd-down dropbacks at
+    the same distance, so a QB isn't punished for facing long 3rd downs.
+    `se` is the binomial standard error of the over-expected rate.
+    """
+    third = plays[(plays["qb_dropback"] == 1) & (plays["down"] == 3) & plays["id"].notna()].copy()
+    third["converted"] = ((third["first_down_pass"] == 1) | (third["first_down_rush"] == 1)).astype(float)
+    edges = [low - 0.5 for low, _ in _DISTANCE_BUCKETS] + [np.inf]
+    third["bucket"] = pd.cut(third["ydstogo"], edges, labels=False)
+    third["expected"] = third.groupby("bucket")["converted"].transform("mean")
+
+    third = third[third["id"].isin(qbs.index)]
+    out = third.groupby("id").agg(
+        third_down_dropbacks=("converted", "size"),
+        conversion_rate=("converted", "mean"),
+        expected_rate=("expected", "mean"),
+        avg_ydstogo=("ydstogo", "mean"),
+        variance=("expected", lambda e: (e * (1 - e)).sum()),
+    )
+    out["conversion_over_expected"] = out["conversion_rate"] - out["expected_rate"]
+    out["se"] = np.sqrt(out.pop("variance")) / out["third_down_dropbacks"]
+    out = qbs[["name", "team"]].join(out, how="inner")
+    out.index.name = "player_id"
+    return out.sort_values("conversion_over_expected", ascending=False)
+
+
+def red_zone_split(plays: pd.DataFrame, qbs: pd.DataFrame) -> pd.DataFrame:
+    """EPA per dropback inside the red zone vs. outside it, for the QBs in `qbs`.
+
+    Each split is also given relative to the league average of all dropbacks in
+    that zone (`*_vs_avg`), since red-zone EPA runs at a different level. The
+    red-zone edge is how much more the QB beats average inside the 20 than
+    outside it.
+    """
+    dropbacks = plays[(plays["qb_dropback"] == 1) & plays["id"].notna()].copy()
+    dropbacks["zone"] = np.where(dropbacks["yardline_100"] <= 20, "rz", "field")
+    league = dropbacks.groupby("zone")["qb_epa"].mean()
+
+    mine = dropbacks[dropbacks["id"].isin(qbs.index)]
+    agg = mine.groupby(["id", "zone"]).agg(dropbacks=("qb_epa", "size"),
+                                           epa_per_db=("qb_epa", "mean"),
+                                           tds=("pass_touchdown", "sum"),
+                                           ints=("interception", "sum")).unstack("zone")
+    out = pd.DataFrame({
+        "rz_dropbacks": agg[("dropbacks", "rz")],
+        "rz_epa_per_db": agg[("epa_per_db", "rz")],
+        "rz_td_rate": agg[("tds", "rz")] / agg[("dropbacks", "rz")],
+        "rz_ints": agg[("ints", "rz")],
+        "field_dropbacks": agg[("dropbacks", "field")],
+        "field_epa_per_db": agg[("epa_per_db", "field")],
+    })
+    out["rz_vs_avg"] = out["rz_epa_per_db"] - league["rz"]
+    out["field_vs_avg"] = out["field_epa_per_db"] - league["field"]
+    out["rz_edge"] = out["rz_vs_avg"] - out["field_vs_avg"]
+    out = qbs[["name", "team"]].join(out, how="inner").dropna(subset=["rz_epa_per_db"])
+    out.index.name = "player_id"
+    return out.sort_values("rz_edge", ascending=False)
+
+
+def plot_third_down_conversion(third: pd.DataFrame, title: str, subtitle: str,
+                               save_path: str | None = None):
+    """Horizontal bars of 3rd-down conversion rate over expected, with ±1 SE whiskers."""
+    apply_style()
+    ranked = third.sort_values("conversion_over_expected")
+    value = ranked["conversion_over_expected"] * 100
+    se = ranked["se"] * 100
+    fig, ax = plt.subplots(figsize=(9.5, max(5, 0.32 * len(ranked) + 1.8)))
+
+    labels = [n if team_logo(t) is not None else f"{n} ({t})"
+              for n, t in zip(ranked["name"], ranked["team"])]
+    y = np.arange(len(ranked))
+    ax.barh(y, value, height=0.7, color=ACCENT, zorder=3)
+    ax.errorbar(value, y, xerr=se, fmt="none", ecolor=TEXT_MUTED, elinewidth=1, capsize=0,
+                zorder=4)
+    ax.set_yticks(y, labels)
+    logo_size = 0.24
+    for i, team in enumerate(ranked["team"]):
+        axis_logo(ax, team, i, offset=4 + logo_size * 36, size=logo_size)
+    ax.axvline(0, color=TEXT_SECONDARY, linewidth=1, zorder=5)
+
+    # Value and raw rate past the end of the whisker, so the text never sits on it.
+    pad = 0.6
+    for i, (v, s, rate, n) in enumerate(zip(value, se, ranked["conversion_rate"],
+                                            ranked["third_down_dropbacks"])):
+        end = v + s + pad if v >= 0 else v - s - pad
+        ax.text(end, i, f"{v:+.1f}  ({rate:.0%} of {n})", va="center",
+                ha="left" if v >= 0 else "right", fontsize=7.5, color=TEXT_SECONDARY)
+
+    ax.grid(axis="y", visible=False)
+    ax.tick_params(axis="y", length=0, labelsize=9, labelcolor=TEXT_PRIMARY,
+                   pad=logo_size * 72 + 8)
+    ax.set_ylim(-0.6, len(ranked) - 0.4)
+    reach = (value.abs() + se).max()
+    ax.set_xlim(-reach * 1.55, reach * 1.55)
+    ax.set_xlabel("3rd-down conversion rate over expected (percentage points)")
+    ax.set_title(title, pad=28)
+    add_subtitle(ax, subtitle)
+    add_footnote(fig, "Data: nflverse via nflreadpy  ·  Expected = league rate at the same "
+                      "distance  ·  Whiskers = ±1 standard error  ·  In parentheses: "
+                      "raw rate of 3rd-down dropbacks")
+    fig.tight_layout(rect=(0, 0.025, 1, 1))
+
+    if save_path:
+        fig.savefig(save_path, dpi=150)
+    return fig, ax
+
+
+def plot_red_zone_vs_field(split: pd.DataFrame, title: str, subtitle: str,
+                           save_path: str | None = None):
+    """Scatter of EPA/dropback vs. league average outside (x) and inside (y) the red zone.
+
+    The diagonal marks equal performance; QBs above it are relatively better
+    in the red zone than between the 20s.
+    """
+    apply_style()
+    fig, ax = plt.subplots(figsize=(12, 9.5))
+
+    x, y = split["field_vs_avg"], split["rz_vs_avg"]
+    boxes = plot_logos(ax, x, y, split["team"], size=0.34)
+    missing = [box is None for box in boxes]
+    ax.scatter(x[missing], y[missing], s=70, color=ACCENT, edgecolor=SURFACE, linewidth=2,
+               zorder=3)
+    ax.margins(x=0.10, y=0.10)
+    ax.axvline(0, color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
+    ax.axhline(0, color=TEXT_MUTED, linestyle="--", linewidth=1, zorder=1)
+    # Freeze limits from the data before drawing the diagonal across them.
+    xlim, ylim = ax.get_xlim(), ax.get_ylim()
+    lo, hi = min(xlim[0], ylim[0]), max(xlim[1], ylim[1])
+    ax.plot([lo, hi], [lo, hi], color=TEXT_SECONDARY, linewidth=1, zorder=1)
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+
+    corner = dict(transform=ax.transAxes, fontsize=10, color=TEXT_SECONDARY,
+                  fontstyle="italic")
+    captions = [
+        ax.text(0.02, 0.98, "Better in the red zone than between the 20s", ha="left",
+                va="top", **corner),
+        ax.text(0.98, 0.02, "Moves the ball, stalls in the red zone", ha="right",
+                va="bottom", **corner),
+    ]
+
+    ax.set_xlabel("EPA per dropback outside the red zone, vs. league average")
+    ax.set_ylabel("EPA per dropback inside the 20, vs. league average")
+    ax.set_title(title, pad=28)
+    add_subtitle(ax, subtitle)
+    add_footnote(fig, "Data: nflverse via nflreadpy  ·  Dashed lines = league average  ·  "
+                      f"Diagonal = equal in both zones  ·  Red-zone dropbacks per QB: "
+                      f"{int(split['rz_dropbacks'].min())}–{int(split['rz_dropbacks'].max())}")
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+
+    _label_qb_points(ax, split, "field_vs_avg", "rz_vs_avg", boxes, captions)
 
     if save_path:
         fig.savefig(save_path, dpi=150)

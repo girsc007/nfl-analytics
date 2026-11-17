@@ -15,8 +15,10 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from nfl_analytics import (load_pbp, offensive_plays, pass_tendency_by_down,  # noqa: E402
                            plot_epa_ranking, plot_epa_vs_cpoe, plot_pass_tendency_by_down,
-                           plot_pass_vs_rush, plot_run_direction, plot_team_efficiency, qb_stats,
-                           run_direction, team_epa, team_pass_rush_epa, write_latest)
+                           plot_pass_vs_rush, plot_red_zone_vs_field, plot_run_direction,
+                           plot_team_efficiency, plot_third_down_conversion, qb_stats,
+                           red_zone_split, run_direction, team_epa, team_pass_rush_epa,
+                           third_down_conversion, write_latest)
 
 
 def main() -> None:
@@ -97,6 +99,24 @@ def main() -> None:
         title=f"{args.season} QB EPA per dropback",
         subtitle=qb_subtitle,
         save_path=figures / f"qb_epa_ranking_{args.season}.png",
+    )
+
+    third = third_down_conversion(plays, qbs)
+    save(third, "qb_third_down")
+    plot_third_down_conversion(
+        third,
+        title=f"{args.season} QB 3rd-down conversion over expected",
+        subtitle=qb_subtitle,
+        save_path=figures / f"qb_third_down_{args.season}.png",
+    )
+
+    red_zone = red_zone_split(plays, qbs)
+    save(red_zone, "qb_red_zone")
+    plot_red_zone_vs_field(
+        red_zone,
+        title=f"{args.season} QBs: red zone vs. the rest of the field",
+        subtitle=qb_subtitle,
+        save_path=figures / f"qb_red_zone_{args.season}.png",
     )
 
     print("\nTop 5 teams by net EPA/play:")

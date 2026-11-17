@@ -128,6 +128,34 @@ Passing mismatches remain far more predictive than rushing ones.
 Minimum 150 dropbacks (15 per week played). Full table: [`output/qb_stats_2026.csv`](output/qb_stats_2026.csv).
 Ranked bar chart: [`figures/qb_epa_ranking_2026.png`](figures/qb_epa_ranking_2026.png).
 
+### 3rd down and the red zone
+
+![2026 QB 3rd-down conversion over expected](figures/qb_third_down_2026.png)
+
+- **3rd down:** Burrow converts 55% of his 3rd-down dropbacks, **+17.2 points** above what the league
+  converts at the same distances, ahead of Cousins (+14.1), Williams (+11.9) and Purdy (+9.3). Rodgers
+  (−9.3), Brissett (−9.1), Nix (−7.8) and Ward (−7.7) are at the bottom.
+- **Mostly noise so far:** with 49–91 third-down dropbacks per QB, the standard error is 5 to 6.5 points.
+  Only Burrow and Cousins are more than two standard errors from average; nobody is that far below it.
+
+![2026 QBs: red zone vs. the rest of the field](figures/qb_red_zone_2026.png)
+
+- **Red zone vs. the rest of the field:** dropbacks inside the 20 average +0.119 EPA, twice the +0.060
+  elsewhere, so each QB is measured against the league average for the zone. Purdy, Burrow and Williams
+  are well above average in both.
+- **Allen stalls inside the 20:** he's +0.23 EPA/dropback above average between the 20s but −0.23 below
+  it in the red zone, the biggest drop-off of any qualified QB, with 3 touchdowns on 39 red-zone
+  dropbacks. Smith (−0.34 relative to his field play) and Maye (−0.24) are next.
+- **The other way:** Winston, Hurts and Penix are below average between the 20s but well above it in
+  the red zone, though on only 14–25 red-zone dropbacks each.
+- **Small samples:** red-zone dropbacks range from 14 to 58 per QB, so red-zone EPA varies between QBs
+  almost twice as much as EPA elsewhere (std. dev. 0.23 vs. 0.13), and the two correlate only weakly
+  (r = 0.36). Situational splits like these are much less stable from season to season than overall
+  efficiency, so read them as what has happened, not as a skill.
+
+Tables: [`output/qb_third_down_2026.csv`](output/qb_third_down_2026.csv),
+[`output/qb_red_zone_2026.csv`](output/qb_red_zone_2026.csv).
+
 ## Using the data (Power BI, Excel, etc.)
 
 Every table is also written to `output/latest/<name>.csv` under a name that never changes, so a dashboard
@@ -143,6 +171,8 @@ the latest completed week; for `matchups` and `unit_ratings` it is the previewed
 | run_direction | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/run_direction.csv |
 | pass_tendency_by_down | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/pass_tendency_by_down.csv |
 | qb_stats | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/qb_stats.csv |
+| qb_third_down | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/qb_third_down.csv |
+| qb_red_zone | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/qb_red_zone.csv |
 | matchups | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/matchups.csv |
 | unit_ratings | https://raw.githubusercontent.com/girsc007/nfl-analytics/main/output/latest/unit_ratings.csv |
 
@@ -161,6 +191,11 @@ same data without the extra columns.
   the QB for a receiver's fumble after the catch.
 - **CPOE:** completion percentage over expected, based on throw difficulty.
 - **Composite:** average of EPA/dropback and CPOE z-scores among qualified QBs.
+- **3rd-down conversion:** a 3rd-down dropback where the QB's own pass or scramble gains the first
+  down (touchdowns included; first downs by defensive penalty don't count). Expected conversion is the
+  league rate on all 3rd-down dropbacks at the same distance (1, 2, 3, 4–5, 6–7, 8–10, 11–15, 16+ yards).
+- **Red zone:** dropbacks starting at the opponent's 20 or closer, compared with the league average
+  for red-zone dropbacks; everything else is compared with the league average outside the red zone.
 
 ## Project structure
 
@@ -201,7 +236,6 @@ jupyter notebook notebooks/
 
 - Pass vs. rush EPA by down and field position (does running pay off near the goal line?)
 - Year-over-year stability of EPA vs. CPOE for QBs
-- QB performance on 3rd down and in the red zone
 - 4th-down decision-making vs. win-probability recommendations
 - Does net EPA/play predict win totals better than point differential?
 
