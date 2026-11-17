@@ -7,8 +7,8 @@ description: Runbook for the week-to-week season update - regenerate the season 
 
 Follow these steps in order. Each step says what "done" looks like; don't move on until it is.
 The update covers the **season charts** (`make_charts.py`) and the **matchup preview** for week N+1
-(`matchups.py`, step 7). A GitHub Action also publishes the preview on Tuesdays, but it often runs hours
-late, so don't wait for it: if the preview isn't already week N+1, regenerate it here.
+(`matchups.py`, step 7). Nothing else updates either one: there is no scheduled GitHub Action, so this
+skill is the only way the repo gets the new week.
 
 Throughout, `N` is the latest completed week and `SEASON` is the current season (default 2026).
 
@@ -19,8 +19,7 @@ git status --short          # must be clean; if not, ask the user what to do wit
 git pull --ff-only origin main
 ```
 
-The `Weekly matchup update` GitHub Action (`.github/workflows/weekly-matchups.yml`, Tuesdays 13:00 UTC)
-pushes matchup charts and a README line to `main`. Pulling first avoids a conflict when you commit.
+Pulling first picks up anything pushed from another machine and avoids a conflict when you push.
 
 ## 2. Get a working Python
 
@@ -139,9 +138,9 @@ about it is mislabeled.
 
 Check `figures/matchups_SEASON_wk*.png`:
 
-- If it's already week N+1 (CI pushed it and you pulled it in step 1), check that its subtitle says
+- If it's already week N+1 (an earlier run this week made it), check that its subtitle says
   `weeks 1–N`, and that's all.
-- Otherwise, regenerate it. Don't ask first, and don't wait for CI:
+- Otherwise, regenerate it. Don't ask first:
 
   ```bash
   $PY scripts/matchups.py --season SEASON              # next week with unplayed games
@@ -151,9 +150,6 @@ Check `figures/matchups_SEASON_wk*.png`:
   Check that it says `week N+1` and `ratings from SEASON weeks 1–N`, with one row per scheduled game in
   the "most lopsided" printout. Then Read `figures/matchups_SEASON_wkN+1.png` and check it the same way as
   step 4. Check that `week` in `output/latest/matchups.csv` is N+1 and `data_through_week` is N.
-
-When CI runs later, it regenerates the same week from the same data, so it commits nothing or only a
-byte-level PNG change. Pull before your next commit.
 
 ## 8. Review and commit
 
@@ -186,5 +182,5 @@ Keep it short:
 - **What changed:** which files were regenerated and the headline movement in the README, such as new
   top teams, QBs entering or leaving the top 10, and claims that flipped.
 - **Problems:** any chart issues from step 4 that are still there.
-- **Matchups:** week N+1, either already pushed by CI or regenerated in step 7.
+- **Matchups:** week N+1, regenerated in step 7 (or already current from an earlier run).
 - **Git:** committed/pushed or not.
