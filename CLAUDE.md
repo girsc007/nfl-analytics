@@ -68,6 +68,7 @@ If `python` isn't on PATH in the sandbox, try `bash -l -c "..."`.
 - When README findings quote numbers, recompute them from the CSV after regenerating; don't carry old
   numbers forward.
 - Commit regenerated `figures/`, `output/` and re-executed notebooks together with the code change.
-  The QB scatter's label placement is randomized, so its PNG changes on every run.
+  The QB scatter places names deterministically (`qb_stats._place_labels`), so an unchanged table gives
+  an unchanged PNG.
 - Git identity is set repo-locally (`tategirsch`) because the sandbox can't see the Windows global
   gitconfig.

@@ -67,10 +67,11 @@ Open each PNG with Read: `team_efficiency`, `team_pass_vs_rush`, `run_direction`
 
 - The subtitle says `through week N`. The QB charts also say `min. 15×N dropbacks`.
 - No clipped title, subtitle, footnote or axis label, and no logo or point cut off at the plot edge.
-- Logos don't cover each other or the quadrant labels. The team efficiency chart nudges overlapping logos
-  apart and draws a small leader dot back to the true position, so those dots are expected.
-- QB scatter: names are readable and sit next to the right logo. Label placement is random, so if the
-  labels collide badly, re-run step 3 once. If they still collide, report it rather than looping.
+- Logos don't cover each other or the quadrant labels. The team efficiency chart and the QB scatter nudge
+  overlapping logos apart and draw a small leader dot back to the true position, so those dots are expected.
+- QB scatter: names are readable and each clearly belongs to one logo, either beside it or joined by a thin
+  leader line. Placement is deterministic, so re-running won't change it. If a name is ambiguous or
+  covered, report it (the placement rules are in `qb_stats._place_labels`).
 - Pass-tendency and run-direction tables: 32 teams plus the NFL avg row, and the color bar is intact.
   On run direction, the share labels fit inside their bar segments and the lane headers line up.
 

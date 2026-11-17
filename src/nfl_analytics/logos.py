@@ -67,17 +67,19 @@ def plot_logos(ax, x, y, teams, size: float = 0.42) -> list:
 
 
 def spread_logos(ax, boxes: list, color: str = "#8a8a8a", fill: float = 0.9,
-                 gap: float = 4, iterations: int = 300) -> None:
+                 gap: float = 4, iterations: int = 300) -> list:
     """Nudge overlapping logos apart, with a leader line back to each true point.
 
     Call after the final layout (tight_layout) so data-to-screen scale is fixed.
     Overlap is judged on each logo's bounding box scaled by `fill`, since logos
     have some transparent padding; moved logos keep `gap` points apart. Logos that
     don't overlap stay put.
+
+    Returns `boxes` with each moved logo replaced by its new artist (None stays None).
     """
     drawn = [box for box in boxes if box is not None]
     if len(drawn) < 2:
-        return
+        return list(boxes)
     # Freeze limits: the offsets below are computed against the current scale.
     ax.set_xlim(ax.get_xlim())
     ax.set_ylim(ax.get_ylim())
@@ -105,16 +107,18 @@ def spread_logos(ax, boxes: list, color: str = "#8a8a8a", fill: float = 0.9,
         if not moved:
             break
 
+    replaced = {}
     for box, start, end in zip(drawn, origin, pos):
         offset = end - start
         if np.hypot(*offset) < 1:
             continue
         box.remove()
-        ax.add_artist(AnnotationBbox(
+        replaced[id(box)] = ax.add_artist(AnnotationBbox(
             box.offsetbox, box.xy, xybox=tuple(offset), boxcoords="offset points",
             frameon=False, pad=0, zorder=3,
             arrowprops=dict(arrowstyle="-", color=color, lw=0.7, shrinkA=0, shrinkB=0)))
         ax.scatter([box.xy[0]], [box.xy[1]], s=8, color=color, zorder=2)
+    return [None if box is None else replaced.get(id(box), box) for box in boxes]
 
 
 def plot_team_points(ax, x, y, teams, size: float = 0.42, color: str = "#2a78d6",
